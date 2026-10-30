@@ -28,7 +28,8 @@ export function trackedLook(item: TrackedItem, on: boolean, flashReady: boolean,
 	const line1 = item.label;
 	switch (effectiveState(item, nowSeconds)) {
 		case "ready":
-			return flash(GREEN, line1, "READY", flashReady && on);
+			// Solid green, blinking to grey while flashing
+			return { background: flashReady && !on ? "#5f5f5f" : GREEN, text: "#ffffff", line1, line2: "READY" };
 		case "countdown":
 			return { background: DARK, text: "#ffffff", line1, line2: formatDuration(item.end - nowSeconds) };
 		case "running":

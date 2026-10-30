@@ -6,6 +6,7 @@ import { isFlashing, type Snapshot } from "../state";
 import { refresh, snapshot, type Ticking } from "../ticker";
 
 type Settings = {
+	flash?: boolean;
 	speed?: "slow" | "normal" | "fast";
 	focusOnPress?: boolean;
 };
@@ -43,6 +44,7 @@ export class IdleAlert extends SingletonAction<Settings> implements Ticking {
 
 	override onDidReceiveSettings(ev: DidReceiveSettingsEvent<Settings>): void {
 		this.settings.set(ev.action.id, ev.payload.settings);
+		this.lastImage.delete(ev.action.id);
 	}
 
 	override onKeyDown(ev: KeyDownEvent<Settings>): void {
@@ -65,7 +67,8 @@ export class IdleAlert extends SingletonAction<Settings> implements Ticking {
 			}
 			const speed = idle.state === "logout" ? "fast" : this.settings.get(a.id)?.speed ?? "normal";
 			const half = HALF_PERIOD[speed] ?? HALF_PERIOD.normal;
-			const on = Math.floor(tick / half) % 2 === 0;
+			// With flashing off the key stays solid in the alert colour
+			const on = this.settings.get(a.id)?.flash === false || Math.floor(tick / half) % 2 === 0;
 
 			const image = renderKey(idleLook(idle, on, dismissed));
 			if (this.lastImage.get(a.id) !== image) {
