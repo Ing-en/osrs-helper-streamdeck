@@ -5,3 +5,5 @@ node_modules/
 *.sdPlugin/bin
 *.sdPlugin/logs
 dist/
+tools/farming-data/build/
+tools/farming-data/.gradle/

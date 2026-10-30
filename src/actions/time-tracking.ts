@@ -9,7 +9,7 @@ import streamDeck, {
 } from "@elgato/streamdeck";
 import type { JsonValue } from "@elgato/utils";
 
-import { focusRuneLite } from "../focus";
+import { focusRuneLite } from "../windows";
 import { renderKey, trackedLook } from "../render";
 import {
 	accountOptions,

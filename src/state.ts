@@ -1,12 +1,5 @@
-import { readdir, readFile } from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-
-/** Written by the "Stream Deck" RuneLite plugin, one file per account. */
-export const ACCOUNTS_DIR = path.join(os.homedir(), ".runelite", "streamdeck", "accounts");
-
-/** RuneLite rewrites each file every 2 seconds; older than this means that client is closed or on another account. */
-const STALE_MILLIS = 8000;
+import { idleStates } from "./idle";
+import { readAccounts } from "./runelite";
 
 /** Key setting value for watching every account. */
 export const ANY_ACCOUNT = "any";
@@ -47,8 +40,9 @@ export type TrackedItem = {
 
 export type Account = {
 	name: string;
+	/** Epoch millis of the account's latest activity, for "most recently played". */
 	updated: number;
-	/** Whether a client is still writing this account's file. */
+	/** Whether a RuneLite window is open for this account. */
 	online: boolean;
 	idle: IdleState;
 	/** Last known Time Tracking data; still valid after RuneLite closes since end times are absolute. */
@@ -62,33 +56,39 @@ export type Snapshot = {
 
 export const OFFLINE: IdleState = { state: "offline", label: "", message: "", since: 0 };
 
-export async function readSnapshot(now = Date.now()): Promise<Snapshot> {
-	let files: string[];
-	try {
-		files = (await readdir(ACCOUNTS_DIR)).filter((f) => f.endsWith(".json"));
-	} catch {
-		// The RuneLite plugin hasn't run yet
-		return { accounts: [] };
-	}
+/**
+ * Combines open RuneLite windows (idle alerts) with RuneLite's saved Time Tracking data. Saved data only changes every
+ * few minutes, so it's re-read at most every few seconds.
+ */
+const TRACKING_REFRESH_MILLIS = 3000;
+let trackingRead = 0;
+let tracking: Awaited<ReturnType<typeof readAccounts>> = [];
 
-	const accounts: Account[] = [];
-	for (const file of files) {
+export async function readSnapshot(now = Date.now()): Promise<Snapshot> {
+	if (now - trackingRead >= TRACKING_REFRESH_MILLIS) {
+		trackingRead = now;
 		try {
-			const json = JSON.parse(await readFile(path.join(ACCOUNTS_DIR, file), "utf8"));
-			const online = typeof json.updated === "number" && now - json.updated <= STALE_MILLIS;
-			accounts.push({
-				name: typeof json.account === "string" ? json.account : file.slice(0, -5),
-				updated: json.updated ?? 0,
-				online,
-				idle: online && json.idle && json.idle.state !== "offline" ? json.idle : OFFLINE,
-				tracking: Array.isArray(json.tracking) ? json.tracking : []
-			});
+			tracking = await readAccounts(now / 1000);
 		} catch {
-			// Caught mid-write; it'll be there next tick
+			// Keep the last good read
 		}
 	}
-	accounts.sort((a, b) => b.updated - a.updated);
-	return { accounts };
+
+	const accounts = new Map<string, Account>();
+	for (const a of tracking) {
+		accounts.set(a.name.toLowerCase(), { name: a.name, updated: a.lastSeen * 1000, online: false, idle: OFFLINE, tracking: a.tracking });
+	}
+	for (const w of idleStates()) {
+		const existing = accounts.get(w.name.toLowerCase());
+		accounts.set(w.name.toLowerCase(), {
+			name: existing?.name ?? w.name,
+			updated: now,
+			online: true,
+			idle: w.idle,
+			tracking: existing?.tracking ?? []
+		});
+	}
+	return { accounts: [...accounts.values()].sort((a, b) => b.updated - a.updated) };
 }
 
 export function isAny(account: string | undefined): boolean {

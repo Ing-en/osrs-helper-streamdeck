@@ -1,0 +1,38 @@
+// Exports RuneLite's Time Tracking farming tables to ../../src/farming-data.json. Run with: gradlew run
+plugins {
+    id 'java'
+}
+
+repositories {
+    maven {
+        url = 'https://repo.runelite.net'
+    }
+    mavenCentral()
+}
+
+dependencies {
+    implementation group: 'net.runelite', name: 'client', version: 'latest.release'
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.release.set(11)
+}
+
+// RuneLite's jar is signed, which stops classes in its packages being loaded from anywhere else
+def clientJar = { configurations.runtimeClasspath.find { it.name.startsWith('client-') } }
+tasks.register('unsignedClient', Jar) {
+    from({ zipTree(clientJar()) }) {
+        exclude 'META-INF/*.SF', 'META-INF/*.RSA', 'META-INF/*.EC', 'META-INF/*.DSA'
+    }
+    archiveFileName = 'client-unsigned.jar'
+    destinationDirectory = layout.buildDirectory.dir('unsigned')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.register('run', JavaExec) {
+    dependsOn 'unsignedClient', 'classes'
+    classpath = files(tasks.named('unsignedClient')) + sourceSets.main.output + configurations.runtimeClasspath.filter { !it.name.startsWith('client-') }
+    mainClass = 'net.runelite.client.plugins.timetracking.farming.FarmingDataExport'
+    args = [file('../../src/farming-data.json').absolutePath]
+}

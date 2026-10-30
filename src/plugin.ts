@@ -2,6 +2,7 @@ import streamDeck from "@elgato/streamdeck";
 
 import { IdleAlert } from "./actions/idle-alert";
 import { options, TimeTracking } from "./actions/time-tracking";
+import { startIdleWatch } from "./idle";
 import { accountOptions } from "./state";
 import { onSnapshot, register } from "./ticker";
 
@@ -31,4 +32,5 @@ onSnapshot(async (snap) => {
 	}
 });
 
+startIdleWatch();
 streamDeck.connect();
