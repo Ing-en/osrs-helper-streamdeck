@@ -56,12 +56,13 @@ export class IdleAlert extends SingletonAction<Settings> implements Ticking {
 	}
 
 	override onKeyDown(ev: KeyDownEvent<Settings>): void {
-		const { idle } = pickIdle(snapshot(), ev.payload.settings.account);
+		const { idle, account } = pickIdle(snapshot(), ev.payload.settings.account);
 		if (isFlashing(idle.state)) {
 			this.dismissedSince.set(ev.action.id, idle.since);
 		}
 		if (ev.payload.settings.focusOnPress !== false) {
-			focusRuneLite();
+			// Watching every account, this is the one that's alerting
+			focusRuneLite(account);
 		}
 	}
 

@@ -74,7 +74,7 @@ export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 			this.dismissed.add(ev.action.id);
 		}
 		if (ev.payload.settings.focusOnPress !== false) {
-			focusRuneLite();
+			focusRuneLite(isAny(account) ? snapshot()?.accounts[0]?.name : account);
 		}
 	}
 
