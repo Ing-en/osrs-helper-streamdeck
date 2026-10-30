@@ -38,6 +38,9 @@ public class RuneLiteWatcher : NativeWindow {
 	const int HSHELL_FLASH = 0x8006;
 	int shellMessage;
 	static readonly object output = new object();
+	// NativeWindow only holds its window weakly: without this, garbage collection destroys the hook window
+	// a few minutes in and flashes stop arriving
+	static RuneLiteWatcher instance;
 
 	static void Emit(string type, IntPtr h) {
 		lock (output) {
@@ -90,7 +93,7 @@ public class RuneLiteWatcher : NativeWindow {
 	}
 
 	public static void Run() {
-		var watcher = new RuneLiteWatcher();
+		instance = new RuneLiteWatcher();
 		var timer = new System.Windows.Forms.Timer { Interval = 1000 };
 		timer.Tick += (s, e) => {
 			lock (output) {
