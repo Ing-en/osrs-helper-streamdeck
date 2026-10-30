@@ -1,11 +1,11 @@
 {
-  "name": "osrs-idle-streamdeck",
+  "name": "osrs-helper-streamdeck",
   "version": "1.0.0",
-  "description": "Stream Deck plugin that flashes a key when your OSRS character goes idle (needs the Stream Deck Idle Alert RuneLite plugin)",
+  "description": "Old School RuneScape keys for Stream Deck: idle alert and Time Tracking (needs the Stream Deck RuneLite plugin)",
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.ingelberg.osrs-idle\"",
-    "pack": "npm run build && streamdeck pack com.ingelberg.osrs-idle.sdPlugin --output dist --force"
+    "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.ingelberg.osrs-helper\"",
+    "pack": "npm run build && streamdeck pack com.ingelberg.osrs-helper.sdPlugin --output dist --force"
   },
   "author": "Ingelberg",
   "license": "BSD-2-Clause",

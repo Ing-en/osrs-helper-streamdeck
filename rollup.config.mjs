@@ -6,7 +6,7 @@ import path from "node:path";
 import url from "node:url";
 
 const isWatching = !!process.env.ROLLUP_WATCH;
-const sdPlugin = "com.ingelberg.osrs-idle.sdPlugin";
+const sdPlugin = "com.ingelberg.osrs-helper.sdPlugin";
 
 /**
  * @type {import('rollup').RollupOptions}
@@ -15,6 +15,8 @@ const config = {
 	input: "src/plugin.ts",
 	output: {
 		file: `${sdPlugin}/bin/plugin.js`,
+		// The SDK's logger exits the process if the logs folder is missing (e.g. a fresh install), so create it first
+		banner: `import { mkdirSync as __mkdirSync } from "node:fs"; try { __mkdirSync(new URL("../logs", import.meta.url), { recursive: true }); } catch {}`,
 		sourcemap: isWatching,
 		sourcemapPathTransform: (relativeSourcePath, sourcemapPath) => {
 			return url.pathToFileURL(path.resolve(path.dirname(sourcemapPath), relativeSourcePath)).href;

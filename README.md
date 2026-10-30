@@ -1,14 +1,21 @@
-# OSRS Idle Alert for Stream Deck
+# OSRS Helper for Stream Deck
 
-A Stream Deck key that flashes when your Old School RuneScape character goes idle, stops moving, leaves combat or is about to be logged out.
+Old School RuneScape keys for your Elgato Stream Deck. Needs the **Stream Deck** plugin from the RuneLite Plugin Hub ([source](https://github.com/Ingelberg/stream-deck)).
 
-It needs the **Stream Deck Idle Alert** plugin from the RuneLite Plugin Hub ([source](https://github.com/Ingelberg/streamdeck-idle-alert)), which listens to RuneLite's Idle Notifier and writes its state to `~/.runelite/streamdeck-idle/state.json`.
+## Keys
 
-## Using it
+**Idle Alert** flashes red with a timer when RuneLite's Idle Notifier says you're idle, stopped moving or out of combat, and orange when you're about to be logged out. Press it to stop the flashing until the next alert.
 
-Drag **Idle Alert** onto a key. While you're idle it flashes red with a timer; the logout warning flashes orange and faster. Press the key to stop the flashing until the next alert and bring RuneLite to the front.
+**Time Tracking** shows one thing from RuneLite's Time Tracking plugin. Pick it in the key's settings:
 
-Settings per key: flash speed, and whether pressing it brings RuneLite to the front.
+- Farming: herb, tree, fruit tree, special, flower, allotment, bush, grape and hops patches, and the farming contract
+- Hunter: bird houses
+- Timers: the next timer to finish, or any timer you've made
+- Stopwatches: any stopwatch you've made
+
+It counts down to when it's ready, then flashes green. Press it to stop the flashing.
+
+Both keys can bring RuneLite to the front when pressed.
 
 ## Building
 
@@ -17,7 +24,7 @@ Requires Node.js 24 and Stream Deck 7.1 or newer.
 ```bash
 npm install
 npm run build
-npx streamdeck link com.ingelberg.osrs-idle.sdPlugin
+npx streamdeck link com.ingelberg.osrs-helper.sdPlugin
 ```
 
-`npm run pack` creates `dist/com.ingelberg.osrs-idle.streamDeckPlugin` for distribution.
+`npm run pack` creates `dist/com.ingelberg.osrs-helper.streamDeckPlugin` for distribution.

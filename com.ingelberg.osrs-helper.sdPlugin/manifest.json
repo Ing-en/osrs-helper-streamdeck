@@ -1,0 +1,67 @@
+{
+	"Name": "OSRS Helper",
+	"Version": "1.0.0.0",
+	"Author": "Ingelberg",
+	"Actions": [
+		{
+			"Name": "Idle Alert",
+			"UUID": "com.ingelberg.osrs-helper.idle",
+			"Icon": "imgs/actions/idle",
+			"Tooltip": "Flashes when your character goes idle, stops moving, leaves combat or is about to log out. Press to stop flashing.",
+			"PropertyInspectorPath": "ui/idle.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/keys/idle",
+					"ShowTitle": false
+				}
+			],
+			"UserTitleEnabled": false
+		},
+		{
+			"Name": "Time Tracking",
+			"UUID": "com.ingelberg.osrs-helper.timetracking",
+			"Icon": "imgs/actions/timetracking",
+			"Tooltip": "Shows a farming patch type, bird houses, the farming contract, a timer or a stopwatch from RuneLite's Time Tracking.",
+			"PropertyInspectorPath": "ui/timetracking.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/keys/timetracking",
+					"ShowTitle": false
+				}
+			],
+			"UserTitleEnabled": false
+		}
+	],
+	"Category": "OSRS Helper",
+	"CategoryIcon": "imgs/category",
+	"CodePath": "bin/plugin.js",
+	"Description": "Old School RuneScape on your Stream Deck: an idle alert key, and keys for every farming patch type, bird houses, the farming contract, timers and stopwatches from RuneLite's Time Tracking. Needs the Stream Deck plugin from the RuneLite Plugin Hub.",
+	"Icon": "imgs/plugin",
+	"URL": "https://github.com/Ingelberg/osrs-helper-streamdeck",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "24"
+	},
+	"UUID": "com.ingelberg.osrs-helper"
+}

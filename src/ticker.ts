@@ -1,0 +1,45 @@
+import { readSnapshot, type Snapshot } from "./state";
+
+export const TICK_MILLIS = 250;
+
+export interface Ticking {
+	/** Number of keys currently showing this action. */
+	readonly visible: number;
+	tick(snapshot: Snapshot | undefined, tick: number): Promise<void>;
+}
+
+const actions: Ticking[] = [];
+let timer: NodeJS.Timeout | undefined;
+let count = 0;
+let latest: Snapshot | undefined;
+
+/** The most recent read of RuneLite's state file. */
+export function snapshot(): Snapshot | undefined {
+	return latest;
+}
+
+export function register(action: Ticking): void {
+	actions.push(action);
+}
+
+/** Starts or stops the shared timer depending on whether any key is visible; call after keys appear or disappear. */
+export function refresh(): void {
+	const needed = actions.some((a) => a.visible > 0);
+	if (needed && !timer) {
+		timer = setInterval(() => void run(), TICK_MILLIS);
+		void run();
+	} else if (!needed && timer) {
+		clearInterval(timer);
+		timer = undefined;
+	}
+}
+
+async function run(): Promise<void> {
+	count++;
+	latest = await readSnapshot();
+	for (const action of actions) {
+		if (action.visible > 0) {
+			await action.tick(latest, count);
+		}
+	}
+}
