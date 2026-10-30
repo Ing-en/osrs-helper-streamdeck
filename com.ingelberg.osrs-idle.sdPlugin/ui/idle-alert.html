@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+	<head lang="en">
+		<title>OSRS Idle Alert Settings</title>
+		<meta charset="utf-8" />
+		<script src="https://sdpi-components.dev/releases/v4/sdpi-components.js"></script>
+	</head>
+
+	<body>
+		<sdpi-item label="Flash speed">
+			<sdpi-select setting="speed" default="normal">
+				<option value="slow">Slow</option>
+				<option value="normal">Normal</option>
+				<option value="fast">Fast</option>
+			</sdpi-select>
+		</sdpi-item>
+		<sdpi-item label="On press">
+			<sdpi-checkbox setting="focusOnPress" default="true" label="Bring RuneLite to the front"></sdpi-checkbox>
+		</sdpi-item>
+		<p style="color: #969696; font-size: 9pt; margin: 8px 16px;">
+			Needs the <b>Stream Deck Idle Alert</b> plugin from the RuneLite Plugin Hub, and Idle Notifier's
+			notifications turned on. Pressing the key while it flashes stops the flashing until the next alert.
+		</p>
+	</body>
+</html>

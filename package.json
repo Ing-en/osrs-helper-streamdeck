@@ -1,0 +1,28 @@
+{
+  "name": "osrs-idle-streamdeck",
+  "version": "1.0.0",
+  "description": "Stream Deck plugin that flashes a key when your OSRS character goes idle (needs the Stream Deck Idle Alert RuneLite plugin)",
+  "scripts": {
+    "build": "rollup -c",
+    "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.ingelberg.osrs-idle\"",
+    "pack": "npm run build && streamdeck pack com.ingelberg.osrs-idle.sdPlugin --output dist --force"
+  },
+  "author": "Ingelberg",
+  "license": "BSD-2-Clause",
+  "type": "module",
+  "dependencies": {
+    "@elgato/streamdeck": "^3.0.4"
+  },
+  "devDependencies": {
+    "@elgato/cli": "^1.10.4",
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^1.0.2",
+    "@rollup/plugin-typescript": "^12.3.1",
+    "@tsconfig/node20": "^20.1.10",
+    "@types/node": "^24.19.2",
+    "rollup": "^4.67.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,49 @@
+{
+	"Name": "OSRS Idle Alert",
+	"Version": "1.0.0.0",
+	"Author": "Ingelberg",
+	"Actions": [
+		{
+			"Name": "Idle Alert",
+			"UUID": "com.ingelberg.osrs-idle.alert",
+			"Icon": "imgs/action",
+			"Tooltip": "Flashes when your Old School RuneScape character goes idle. Press to stop flashing and bring RuneLite to the front.",
+			"PropertyInspectorPath": "ui/idle-alert.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/key",
+					"ShowTitle": false
+				}
+			],
+			"UserTitleEnabled": false
+		}
+	],
+	"Category": "OSRS Idle Alert",
+	"CategoryIcon": "imgs/category",
+	"CodePath": "bin/plugin.js",
+	"Description": "Flashes a key when your Old School RuneScape character goes idle, stops moving, leaves combat or is about to log out. Needs the Stream Deck Idle Alert plugin from the RuneLite Plugin Hub.",
+	"Icon": "imgs/plugin",
+	"URL": "https://github.com/Ingelberg/osrs-idle-streamdeck",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "mac",
+			"MinimumVersion": "12"
+		},
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "24"
+	},
+	"UUID": "com.ingelberg.osrs-idle"
+}
