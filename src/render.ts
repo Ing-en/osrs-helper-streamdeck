@@ -1,6 +1,7 @@
 import { effectiveState, type IdleState, type TrackedItem } from "./state";
 
-export type Look = { background: string; text: string; line1: string; line2: string };
+/** `top` is a small line above the rest, used for the account name. */
+export type Look = { background: string; text: string; line1: string; line2: string; top?: string };
 
 const DARK = "#1b1b1b";
 const GREY = "#8a8a8a";
@@ -15,7 +16,7 @@ export function idleLook(state: IdleState, on: boolean, dismissed: boolean, now 
 		case "loggedout":
 			return { background: DARK, text: GREY, line1: "LOGGED", line2: "OUT" };
 		case "offline":
-			return { background: DARK, text: "#5c5c5c", line1: "RUNELITE", line2: "CLOSED" };
+			return { background: DARK, text: "#5c5c5c", line1: "OFFLINE", line2: "" };
 	}
 
 	const colour = state.state === "logout" ? "#e65100" : state.state === "kicked" ? "#6a1b9a" : "#c62828";
@@ -56,16 +57,22 @@ function flash(colour: string, line1: string, line2: string, on: boolean): Look 
 }
 
 export function renderKey(l: Look): string {
+	// With an account line on top, everything shifts down and shrinks a little
+	const top = l.top ? text(l.top, 28, fontSize(l.top, 18), l.text, 0.75) : "";
+	const [y1, y2, max1, max2] = l.top
+		? l.line2 ? [74, 112, 26, 26] : [92, 0, 28, 0]
+		: l.line2 ? [64, 106, 30, 28] : [82, 0, 30, 0];
 	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
 <rect width="144" height="144" fill="${l.background}"/>
-${text(l.line1, l.line2 ? 64 : 82, fontSize(l.line1, 30), l.text)}
-${l.line2 ? text(l.line2, 106, fontSize(l.line2, 28), l.text) : ""}
+${top}
+${text(l.line1, y1, fontSize(l.line1, max1), l.text)}
+${l.line2 ? text(l.line2, y2, fontSize(l.line2, max2), l.text) : ""}
 </svg>`;
 	return `data:image/svg+xml;charset=utf8,${encodeURIComponent(svg)}`;
 }
 
-function text(value: string, y: number, size: number, fill: string): string {
-	return `<text x="72" y="${y}" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="${size}" fill="${fill}" text-anchor="middle">${escape(value)}</text>`;
+function text(value: string, y: number, size: number, fill: string, opacity = 1): string {
+	return `<text x="72" y="${y}" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="${size}" fill="${fill}" fill-opacity="${opacity}" text-anchor="middle">${escape(value)}</text>`;
 }
 
 /** Shrinks long text to fit the key's width; Arial bold capitals are about 0.72em wide. */

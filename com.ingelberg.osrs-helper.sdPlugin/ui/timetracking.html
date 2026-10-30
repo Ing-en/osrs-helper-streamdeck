@@ -7,6 +7,9 @@
 	</head>
 
 	<body>
+		<sdpi-item label="Account">
+			<sdpi-select setting="account" datasource="getAccounts" hot-reload default="any" loading="Loading..."></sdpi-select>
+		</sdpi-item>
 		<sdpi-item label="Show">
 			<sdpi-select setting="item" datasource="getItems" hot-reload loading="Loading..." placeholder="Pick something to track"></sdpi-select>
 		</sdpi-item>
@@ -18,7 +21,7 @@
 		</sdpi-item>
 		<p style="color: #969696; font-size: 9pt; margin: 8px 16px">
 			Shows what RuneLite's <b>Time Tracking</b> plugin knows. Timers and stopwatches you create there show up in the list
-			once RuneLite is running with the <b>Stream Deck</b> plugin. Pressing a flashing key stops the flashing.
+			once RuneLite is running with the <b>Stream Deck</b> plugin. Accounts show up after you log in to them. Pressing a flashing key stops the flashing.
 		</p>
 	</body>
 </html>

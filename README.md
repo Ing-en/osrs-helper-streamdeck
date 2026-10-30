@@ -15,7 +15,7 @@ Old School RuneScape keys for your Elgato Stream Deck. Needs the **Stream Deck**
 
 It counts down to when it's ready, then flashes green. Press it to stop the flashing.
 
-Both keys can bring RuneLite to the front when pressed.
+Both keys can bring RuneLite to the front when pressed, and can watch one account or any account. With several clients open, an Idle Alert set to *Any account* shows whichever account needs you most and names it on the key. The Idle Alert's flashing can be turned off so it just turns red.
 
 ## Building
 

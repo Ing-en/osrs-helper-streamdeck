@@ -1,11 +1,21 @@
-import { action, DidReceiveSettingsEvent, KeyDownEvent, SingletonAction, WillAppearEvent, WillDisappearEvent } from "@elgato/streamdeck";
+import streamDeck, {
+	action,
+	DidReceiveSettingsEvent,
+	KeyDownEvent,
+	SendToPluginEvent,
+	SingletonAction,
+	WillAppearEvent,
+	WillDisappearEvent
+} from "@elgato/streamdeck";
+import type { JsonValue } from "@elgato/utils";
 
 import { focusRuneLite } from "../focus";
 import { idleLook, renderKey } from "../render";
-import { isFlashing, type Snapshot } from "../state";
+import { accountOptions, isAny, isFlashing, pickIdle, type Snapshot } from "../state";
 import { refresh, snapshot, type Ticking } from "../ticker";
 
 type Settings = {
+	account?: string;
 	flash?: boolean;
 	speed?: "slow" | "normal" | "fast";
 	focusOnPress?: boolean;
@@ -14,8 +24,6 @@ type Settings = {
 // Flash half-period in ticks; the logout warning always flashes at the fastest rate
 export const HALF_PERIOD: Record<string, number> = { slow: 4, normal: 2, fast: 1 };
 
-const OFFLINE = { state: "offline", label: "", message: "", since: 0 } as const;
-
 /**
  * A key that flashes while RuneLite's Idle Notifier says the player is idle.
  */
@@ -23,8 +31,8 @@ const OFFLINE = { state: "offline", label: "", message: "", since: 0 } as const;
 export class IdleAlert extends SingletonAction<Settings> implements Ticking {
 	private readonly settings = new Map<string, Settings>();
 	private readonly lastImage = new Map<string, string>();
-	// The `since` of the alert the user dismissed by pressing the key; a new alert flashes again
-	private dismissedSince = -1;
+	// Per key, the `since` of the alert the user dismissed by pressing it; a new alert flashes again
+	private readonly dismissedSince = new Map<string, number>();
 
 	get visible(): number {
 		return this.settings.size;
@@ -48,29 +56,46 @@ export class IdleAlert extends SingletonAction<Settings> implements Ticking {
 	}
 
 	override onKeyDown(ev: KeyDownEvent<Settings>): void {
-		const idle = snapshot()?.idle;
-		if (idle && isFlashing(idle.state)) {
-			this.dismissedSince = idle.since;
+		const { idle } = pickIdle(snapshot(), ev.payload.settings.account);
+		if (isFlashing(idle.state)) {
+			this.dismissedSince.set(ev.action.id, idle.since);
 		}
 		if (ev.payload.settings.focusOnPress !== false) {
 			focusRuneLite();
 		}
 	}
 
+	/** Fills the property inspector's account dropdown (sdpi-select datasource="getAccounts"). */
+	override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, Settings>): Promise<void> {
+		const payload = ev.payload as { event?: string } | null;
+		if (payload?.event === "getAccounts") {
+			await streamDeck.ui.sendToPropertyInspector({ event: "getAccounts", items: accountOptions(snapshot()) });
+		}
+	}
+
 	async tick(snap: Snapshot | undefined, tick: number): Promise<void> {
-		const idle = snap?.idle ?? OFFLINE;
-		const dismissed = idle.since === this.dismissedSince;
+		const online = snap?.accounts.filter((a) => a.online).length ?? 0;
 
 		for (const a of this.actions) {
 			if (!a.isKey()) {
 				continue;
 			}
-			const speed = idle.state === "logout" ? "fast" : this.settings.get(a.id)?.speed ?? "normal";
+			const settings = this.settings.get(a.id) ?? {};
+			const { idle, account } = pickIdle(snap, settings.account);
+			const dismissed = idle.since === this.dismissedSince.get(a.id);
+
+			const speed = idle.state === "logout" ? "fast" : settings.speed ?? "normal";
 			const half = HALF_PERIOD[speed] ?? HALF_PERIOD.normal;
 			// With flashing off the key stays solid in the alert colour
-			const on = this.settings.get(a.id)?.flash === false || Math.floor(tick / half) % 2 === 0;
+			const on = settings.flash === false || Math.floor(tick / half) % 2 === 0;
 
-			const image = renderKey(idleLook(idle, on, dismissed));
+			const look = idleLook(idle, on, dismissed);
+			// Name the account when the key watches one, or when several are logged in and it could be any of them
+			if (account && (!isAny(settings.account) || online > 1)) {
+				look.top = account;
+			}
+
+			const image = renderKey(look);
 			if (this.lastImage.get(a.id) !== image) {
 				this.lastImage.set(a.id, image);
 				await a.setImage(image);

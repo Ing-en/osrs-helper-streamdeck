@@ -1,12 +1,15 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-/** Written by the "Stream Deck" RuneLite plugin. */
-export const STATE_FILE = path.join(os.homedir(), ".runelite", "streamdeck", "state.json");
+/** Written by the "Stream Deck" RuneLite plugin, one file per account. */
+export const ACCOUNTS_DIR = path.join(os.homedir(), ".runelite", "streamdeck", "accounts");
 
-/** RuneLite rewrites the file every 2 seconds; older than this means the client is closed. */
+/** RuneLite rewrites each file every 2 seconds; older than this means that client is closed or on another account. */
 const STALE_MILLIS = 8000;
+
+/** Key setting value for watching every account. */
+export const ANY_ACCOUNT = "any";
 
 export type IdleKind = "active" | "idle" | "logout" | "alert" | "loggedout" | "kicked" | "offline";
 
@@ -42,26 +45,104 @@ export type TrackedItem = {
 	start: number;
 };
 
-export type Snapshot = {
+export type Account = {
+	name: string;
+	updated: number;
+	/** Whether a client is still writing this account's file. */
+	online: boolean;
 	idle: IdleState;
 	/** Last known Time Tracking data; still valid after RuneLite closes since end times are absolute. */
 	tracking: TrackedItem[];
 };
 
-const OFFLINE: IdleState = { state: "offline", label: "", message: "", since: 0 };
+export type Snapshot = {
+	/** Most recently updated first. */
+	accounts: Account[];
+};
 
-export async function readSnapshot(now = Date.now()): Promise<Snapshot | undefined> {
+export const OFFLINE: IdleState = { state: "offline", label: "", message: "", since: 0 };
+
+export async function readSnapshot(now = Date.now()): Promise<Snapshot> {
+	let files: string[];
 	try {
-		const json = JSON.parse(await readFile(STATE_FILE, "utf8"));
-		const stale = typeof json.updated !== "number" || now - json.updated > STALE_MILLIS;
-		return {
-			idle: stale || !json.idle ? OFFLINE : json.idle,
-			tracking: Array.isArray(json.tracking) ? json.tracking : []
-		};
+		files = (await readdir(ACCOUNTS_DIR)).filter((f) => f.endsWith(".json"));
 	} catch {
-		// Missing (plugin never ran) or caught mid-write
+		// The RuneLite plugin hasn't run yet
+		return { accounts: [] };
+	}
+
+	const accounts: Account[] = [];
+	for (const file of files) {
+		try {
+			const json = JSON.parse(await readFile(path.join(ACCOUNTS_DIR, file), "utf8"));
+			const online = typeof json.updated === "number" && now - json.updated <= STALE_MILLIS;
+			accounts.push({
+				name: typeof json.account === "string" ? json.account : file.slice(0, -5),
+				updated: json.updated ?? 0,
+				online,
+				idle: online && json.idle && json.idle.state !== "offline" ? json.idle : OFFLINE,
+				tracking: Array.isArray(json.tracking) ? json.tracking : []
+			});
+		} catch {
+			// Caught mid-write; it'll be there next tick
+		}
+	}
+	accounts.sort((a, b) => b.updated - a.updated);
+	return { accounts };
+}
+
+export function isAny(account: string | undefined): boolean {
+	return !account || account === ANY_ACCOUNT;
+}
+
+/** The chosen account, matched case-insensitively since RuneScape names are. */
+export function findAccount(snap: Snapshot | undefined, account: string | undefined): Account | undefined {
+	const wanted = account?.toLowerCase();
+	return snap?.accounts.find((a) => a.name.toLowerCase() === wanted);
+}
+
+const URGENCY: Record<IdleKind, number> = { kicked: 5, logout: 4, idle: 3, alert: 3, active: 2, loggedout: 1, offline: 0 };
+
+/**
+ * The idle state to show and which account it belongs to. Watching every account shows the most urgent one,
+ * so a second client going idle is never hidden by one you're playing on.
+ */
+export function pickIdle(snap: Snapshot | undefined, account: string | undefined): { idle: IdleState; account?: string } {
+	if (!isAny(account)) {
+		const found = findAccount(snap, account);
+		return { idle: found?.idle ?? OFFLINE, account: found?.name ?? account };
+	}
+
+	let best: Account | undefined;
+	for (const a of snap?.accounts ?? []) {
+		if (a.online && (!best || URGENCY[a.idle.state] > URGENCY[best.idle.state])) {
+			best = a;
+		}
+	}
+	return { idle: best?.idle ?? OFFLINE, account: best?.name };
+}
+
+/** A tracked item from the chosen account, or from the most recently played account that has it. */
+export function pickTracked(snap: Snapshot | undefined, account: string | undefined, id: string | undefined): TrackedItem | undefined {
+	if (!id) {
 		return undefined;
 	}
+	const accounts = isAny(account) ? snap?.accounts ?? [] : [findAccount(snap, account)].filter((a) => a !== undefined);
+	for (const a of accounts) {
+		const item = a.tracking.find((t) => t.id === id);
+		if (item) {
+			return item;
+		}
+	}
+	return undefined;
+}
+
+/** Names for the account dropdown, with "Any account" first. */
+export function accountOptions(snap: Snapshot | undefined): { label: string; value: string }[] {
+	return [
+		{ label: "Any account", value: ANY_ACCOUNT },
+		...(snap?.accounts ?? []).map((a) => ({ label: a.name, value: a.name })).sort((a, b) => a.label.localeCompare(b.label))
+	];
 }
 
 export function isFlashing(state: IdleKind): boolean {

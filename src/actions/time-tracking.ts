@@ -11,11 +11,21 @@ import type { JsonValue } from "@elgato/utils";
 
 import { focusRuneLite } from "../focus";
 import { renderKey, trackedLook } from "../render";
-import { DEFAULT_ITEMS, effectiveState, type Snapshot, type TrackedItem } from "../state";
+import {
+	accountOptions,
+	DEFAULT_ITEMS,
+	effectiveState,
+	findAccount,
+	isAny,
+	pickTracked,
+	type Snapshot,
+	type TrackedItem
+} from "../state";
 import { refresh, snapshot, type Ticking } from "../ticker";
 import { HALF_PERIOD } from "./idle-alert";
 
 type Settings = {
+	account?: string;
 	item?: string;
 	flashWhenReady?: boolean;
 	focusOnPress?: boolean;
@@ -56,7 +66,8 @@ export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 	}
 
 	override onKeyDown(ev: KeyDownEvent<Settings>): void {
-		const item = find(snapshot(), ev.payload.settings.item);
+		const { account, item: id } = ev.payload.settings;
+		const item = pickTracked(snapshot(), account, id);
 		if (item && effectiveState(item) === "ready") {
 			this.dismissed.add(ev.action.id);
 		}
@@ -65,11 +76,14 @@ export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 		}
 	}
 
-	/** Fills the property inspector's dropdown (sdpi-select datasource="getItems"). */
+	/** Fills the property inspector's dropdowns (sdpi-select datasource="getAccounts" / "getItems"). */
 	override async onSendToPlugin(ev: SendToPluginEvent<JsonValue, Settings>): Promise<void> {
 		const payload = ev.payload as { event?: string } | null;
-		if (payload?.event === "getItems") {
-			await streamDeck.ui.sendToPropertyInspector({ event: "getItems", items: options(snapshot()) });
+		if (payload?.event === "getAccounts") {
+			await streamDeck.ui.sendToPropertyInspector({ event: "getAccounts", items: accountOptions(snapshot()) });
+		} else if (payload?.event === "getItems") {
+			const settings = await ev.action.getSettings();
+			await streamDeck.ui.sendToPropertyInspector({ event: "getItems", items: options(snapshot(), settings.account) });
 		}
 	}
 
@@ -81,24 +95,25 @@ export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 				continue;
 			}
 			const settings = this.settings.get(a.id) ?? {};
-			const item = find(snap, settings.item) ?? placeholder(settings.item);
+			const item = pickTracked(snap, settings.account, settings.item) ?? placeholder(settings.item);
 
 			if (effectiveState(item) !== "ready") {
 				this.dismissed.delete(a.id);
 			}
 			const flash = settings.flashWhenReady !== false && !this.dismissed.has(a.id);
 
-			const image = renderKey(trackedLook(item, on, flash));
+			const look = trackedLook(item, on, flash);
+			if (!isAny(settings.account)) {
+				look.top = findAccount(snap, settings.account)?.name ?? settings.account;
+			}
+
+			const image = renderKey(look);
 			if (this.lastImage.get(a.id) !== image) {
 				this.lastImage.set(a.id, image);
 				await a.setImage(image);
 			}
 		}
 	}
-}
-
-function find(snap: Snapshot | undefined, id: string | undefined): TrackedItem | undefined {
-	return id ? snap?.tracking.find((t) => t.id === id) : undefined;
 }
 
 /** What to show before RuneLite has reported the chosen item, or after a timer was deleted. */
@@ -108,10 +123,19 @@ function placeholder(id: string | undefined): TrackedItem {
 	return { id: id ?? "", name: label, label, state: "unknown", end: 0, seconds: 0, start: 0 };
 }
 
-function options(snap: Snapshot | undefined): { label: string; children: Option[] }[] {
-	const items: Pick<TrackedItem, "id" | "name">[] = snap?.tracking.length ? snap.tracking : DEFAULT_ITEMS;
-	const groups: Record<string, Option[]> = { Farming: [], Hunter: [], Timers: [], Stopwatches: [] };
+/** Everything the chosen account (or any account) tracks, grouped for the dropdown. */
+function options(snap: Snapshot | undefined, account: string | undefined): { label: string; children: Option[] }[] {
+	const accounts = isAny(account) ? snap?.accounts ?? [] : [findAccount(snap, account)].filter((a) => a !== undefined);
+	const seen = new Set<string>();
+	const items: Pick<TrackedItem, "id" | "name">[] = [];
+	for (const item of [...accounts.flatMap((a) => a.tracking), ...DEFAULT_ITEMS]) {
+		if (!seen.has(item.id)) {
+			seen.add(item.id);
+			items.push(item);
+		}
+	}
 
+	const groups: Record<string, Option[]> = { Farming: [], Hunter: [], Timers: [], Stopwatches: [] };
 	for (const item of items) {
 		const group = item.id.startsWith("stopwatch:")
 			? "Stopwatches"
