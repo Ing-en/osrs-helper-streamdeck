@@ -9,6 +9,7 @@ export interface Ticking {
 }
 
 const actions: Ticking[] = [];
+const listeners: ((snapshot: Snapshot) => Promise<void>)[] = [];
 let timer: NodeJS.Timeout | undefined;
 let count = 0;
 let latest: Snapshot | undefined;
@@ -20,6 +21,11 @@ export function snapshot(): Snapshot | undefined {
 
 export function register(action: Ticking): void {
 	actions.push(action);
+}
+
+/** Called after every read of the state files. */
+export function onSnapshot(listener: (snapshot: Snapshot) => Promise<void>): void {
+	listeners.push(listener);
 }
 
 /** Starts or stops the shared timer depending on whether any key is visible; call after keys appear or disappear. */
@@ -37,6 +43,9 @@ export function refresh(): void {
 async function run(): Promise<void> {
 	count++;
 	latest = await readSnapshot();
+	for (const listener of listeners) {
+		await listener(latest);
+	}
 	for (const action of actions) {
 		if (action.visible > 0) {
 			await action.tick(latest, count);

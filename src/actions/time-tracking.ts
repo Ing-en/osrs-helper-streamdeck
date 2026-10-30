@@ -60,9 +60,11 @@ export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 		refresh();
 	}
 
-	override onDidReceiveSettings(ev: DidReceiveSettingsEvent<Settings>): void {
+	override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<Settings>): Promise<void> {
 		this.settings.set(ev.action.id, ev.payload.settings);
 		this.lastImage.delete(ev.action.id);
+		// Another account may track different timers
+		await streamDeck.ui.sendToPropertyInspector({ event: "getItems", items: options(snapshot(), ev.payload.settings.account) });
 	}
 
 	override onKeyDown(ev: KeyDownEvent<Settings>): void {
@@ -124,7 +126,7 @@ function placeholder(id: string | undefined): TrackedItem {
 }
 
 /** Everything the chosen account (or any account) tracks, grouped for the dropdown. */
-function options(snap: Snapshot | undefined, account: string | undefined): { label: string; children: Option[] }[] {
+export function options(snap: Snapshot | undefined, account: string | undefined): { label: string; children: Option[] }[] {
 	const accounts = isAny(account) ? snap?.accounts ?? [] : [findAccount(snap, account)].filter((a) => a !== undefined);
 	const seen = new Set<string>();
 	const items: Pick<TrackedItem, "id" | "name">[] = [];
