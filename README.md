@@ -30,7 +30,7 @@ Both keys can watch one account or any account, and bring that account's RuneLit
 
 ## Support
 
-Found a bug or have an idea? [Open an issue](https://github.com/Ingelberg/osrs-helper-streamdeck/issues).
+Found a bug or have an idea? [Open an issue](https://github.com/Ing-en/osrs-helper-streamdeck/issues).
 
 ## Licence
 

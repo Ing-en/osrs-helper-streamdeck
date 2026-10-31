@@ -15,7 +15,7 @@ First release: Idle Alert and Time Tracking keys, per-account watching, and pres
 OSRS Helper was built with AI assistance: the code was written with Anthropic's Claude, directed by me. I chose the features and design, edited the Idle key's PLAYING label in the code myself, tested every change on my own Stream Deck and RuneLite setup, and reported the bugs that were fixed. The marketplace images were also made with Claude, from the plugin's real key designs. Farming predictions are ported from RuneLite's open-source Time Tracking plugin (BSD-2-Clause, credited in THIRD-PARTY-NOTICES.txt).
 
 ## Support link
-https://github.com/Ingelberg/osrs-helper-streamdeck/issues
+https://github.com/Ing-en/osrs-helper-streamdeck/issues
 
 ## Media
 - App icon: app-icon-288.png (288 x 288)
