@@ -78,8 +78,8 @@ ${l.line2 ? text(l.line2, y2, fontSize(l.line2, max2), l.text) : ""}`);
 function renderThreeLines(l: Look): string {
 	const [yTop, y1, y2, y3, max] = l.top ? [22, 54, 90, 126, 24] : [0, 42, 82, 124, 28];
 	const line3 = l.line3 ?? "";
-	// The name and the bottom line share one size: the largest both fit at
-	const size = Math.min(fontSize(l.line1, max), fontSize(line3, max));
+	// The name and the bottom line share one size: a bit under the largest both fit at
+	const size = Math.floor(Math.min(fontSize(l.line1, max), fontSize(line3, max)) * 0.85);
 	return svgKey(
 		l.background,
 		`${l.top ? text(l.top, yTop, fontSize(l.top, 16), l.text, 0.75) : ""}
