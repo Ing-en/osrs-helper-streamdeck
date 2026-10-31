@@ -37,7 +37,7 @@ type Option = { label: string; value: string };
  * A key showing one thing RuneLite's Time Tracking plugin tracks: a farming patch type, bird houses, the farming contract,
  * a timer or a stopwatch.
  */
-@action({ UUID: "com.ingelberg.osrs-helper.timetracking" })
+@action({ UUID: "com.ingen.osrs-helper.timetracking" })
 export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 	private readonly settings = new Map<string, Settings>();
 	private readonly lastImage = new Map<string, string>();

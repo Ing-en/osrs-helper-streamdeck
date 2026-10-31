@@ -7,7 +7,7 @@ import path from "node:path";
 import url from "node:url";
 
 const isWatching = !!process.env.ROLLUP_WATCH;
-const sdPlugin = "com.ingelberg.osrs-helper.sdPlugin";
+const sdPlugin = "com.ingen.osrs-helper.sdPlugin";
 
 /**
  * @type {import('rollup').RollupOptions}

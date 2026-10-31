@@ -1,11 +1,11 @@
 {
 	"Name": "OSRS Helper",
 	"Version": "1.0.0.0",
-	"Author": "Ingelberg",
+	"Author": "Ingen",
 	"Actions": [
 		{
 			"Name": "Idle Alert",
-			"UUID": "com.ingelberg.osrs-helper.idle",
+			"UUID": "com.ingen.osrs-helper.idle",
 			"Icon": "imgs/actions/idle",
 			"Tooltip": "Flashes when your character goes idle, stops moving, leaves combat or is about to log out. Press to stop flashing.",
 			"PropertyInspectorPath": "ui/idle.html",
@@ -23,7 +23,7 @@
 		},
 		{
 			"Name": "Time Tracking",
-			"UUID": "com.ingelberg.osrs-helper.timetracking",
+			"UUID": "com.ingen.osrs-helper.timetracking",
 			"Icon": "imgs/actions/timetracking",
 			"Tooltip": "Shows a farming patch type, bird houses, the farming contract, a timer or a stopwatch from RuneLite's Time Tracking.",
 			"PropertyInspectorPath": "ui/timetracking.html",
@@ -58,6 +58,6 @@
 	"Nodejs": {
 		"Version": "24"
 	},
-	"UUID": "com.ingelberg.osrs-helper",
+	"UUID": "com.ingen.osrs-helper",
 	"URL": "https://github.com/Ing-en/osrs-helper-streamdeck"
 }

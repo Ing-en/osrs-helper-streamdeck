@@ -2,7 +2,7 @@
 // requires (the ported RuneLite farming logic and the npm packages rollup bundles into bin/plugin.js).
 import { readFileSync, writeFileSync } from "node:fs";
 
-const out = "com.ingelberg.osrs-helper.sdPlugin/THIRD-PARTY-NOTICES.txt";
+const out = "com.ingen.osrs-helper.sdPlugin/THIRD-PARTY-NOTICES.txt";
 const BUNDLED = ["@elgato/streamdeck", "@elgato/utils", "@elgato/schemas", "ws"];
 const RULE = "=".repeat(78);
 

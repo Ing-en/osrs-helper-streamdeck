@@ -26,7 +26,7 @@ onSnapshot(async (snap) => {
 	lastLists = lists;
 
 	await streamDeck.ui.sendToPropertyInspector({ event: "getAccounts", items: accountOptions(snap) });
-	if (current.manifestId === "com.ingelberg.osrs-helper.timetracking") {
+	if (current.manifestId === "com.ingen.osrs-helper.timetracking") {
 		const settings = (await current.getSettings()) as { account?: string };
 		await streamDeck.ui.sendToPropertyInspector({ event: "getItems", items: options(snap, settings.account) });
 	}

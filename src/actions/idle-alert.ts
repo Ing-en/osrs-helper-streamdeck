@@ -27,7 +27,7 @@ export const HALF_PERIOD: Record<string, number> = { slow: 4, normal: 2, fast: 1
 /**
  * A key that flashes while RuneLite's Idle Notifier says the player is idle.
  */
-@action({ UUID: "com.ingelberg.osrs-helper.idle" })
+@action({ UUID: "com.ingen.osrs-helper.idle" })
 export class IdleAlert extends SingletonAction<Settings> implements Ticking {
 	private readonly settings = new Map<string, Settings>();
 	private readonly lastImage = new Map<string, string>();

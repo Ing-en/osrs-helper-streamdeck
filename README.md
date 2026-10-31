@@ -35,7 +35,7 @@ Found a bug or have an idea? [Open an issue](https://github.com/Ing-en/osrs-help
 ## Licence
 
 BSD-2-Clause. Third-party notices, including RuneLite's for the ported farming logic, are in
-`com.ingelberg.osrs-helper.sdPlugin/THIRD-PARTY-NOTICES.txt`.
+`com.ingen.osrs-helper.sdPlugin/THIRD-PARTY-NOTICES.txt`.
 
 ## Building
 
@@ -44,7 +44,7 @@ Requires Windows, Node.js 24 and Stream Deck 7.1 or newer. `npm run build` also 
 ```bash
 npm install
 npm run build
-npx streamdeck link com.ingelberg.osrs-helper.sdPlugin
+npx streamdeck link com.ingen.osrs-helper.sdPlugin
 ```
 
-`npm run pack` creates `dist/com.ingelberg.osrs-helper.streamDeckPlugin` for distribution.
+`npm run pack` creates `dist/com.ingen.osrs-helper.streamDeckPlugin` for distribution.

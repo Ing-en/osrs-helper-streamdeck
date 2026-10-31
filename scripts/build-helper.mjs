@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, statSync } from "node:fs";
 import path from "node:path";
 
 // Absolute Windows paths: csc reads a leading "/" in a relative path as a switch
-const out = path.resolve("com.ingelberg.osrs-helper.sdPlugin", "bin", "osrs-helper-windows.exe");
+const out = path.resolve("com.ingen.osrs-helper.sdPlugin", "bin", "osrs-helper-windows.exe");
 const source = path.resolve("src", "helper", "RuneLiteWatcher.cs");
 
 if (process.platform !== "win32") {
