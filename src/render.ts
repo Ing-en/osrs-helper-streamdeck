@@ -12,7 +12,7 @@ export function idleLook(state: IdleState, on: boolean, dismissed: boolean, now 
 	const elapsed = formatClock((now - state.since) / 1000);
 	switch (state.state) {
 		case "active":
-			return { background: "#14361f", text: "#7ee08f", line1: "ACTIVE", line2: "" };
+			return { background: GREEN, text: "#ffffff", line1: "ACTIVE", line2: "" };
 		case "loggedout":
 			return { background: DARK, text: GREY, line1: "LOGGED", line2: "OUT" };
 		case "offline":
