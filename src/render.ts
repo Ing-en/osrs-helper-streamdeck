@@ -1,7 +1,9 @@
 import { effectiveState, type IdleState, type TrackedItem } from "./state";
 
-/** `top` is a small line above the rest, used for the account name. */
-export type Look = { background: string; text: string; line1: string; line2: string; top?: string };
+/** `top` is a small line above the rest, used for the account name; `line3` sits at the bottom, sized like `line1`. */
+export type Look = { background: string; text: string; line1: string; line2: string; line3?: string; top?: string };
+
+const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 const DARK = "#1b1b1b";
 const GREY = "#8a8a8a";
@@ -27,12 +29,14 @@ export function idleLook(state: IdleState, on: boolean, dismissed: boolean, now 
 export function trackedLook(item: TrackedItem, on: boolean, flashReady: boolean, now = Date.now()): Look {
 	const nowSeconds = now / 1000;
 	const line1 = item.label;
+	// When it is (or was) ready, if known
+	const line3 = item.end > 0 ? formatWhen(item.end) : undefined;
 	switch (effectiveState(item, nowSeconds)) {
 		case "ready":
 			// Solid green, blinking to grey while flashing
-			return { background: flashReady && !on ? "#5f5f5f" : GREEN, text: "#ffffff", line1, line2: "READY" };
+			return { background: flashReady && !on ? "#5f5f5f" : GREEN, text: "#ffffff", line1, line2: "READY", line3 };
 		case "countdown":
-			return { background: DARK, text: "#ffffff", line1, line2: formatDuration(item.end - nowSeconds) };
+			return { background: DARK, text: "#ffffff", line1, line2: formatDuration(item.end - nowSeconds), line3 };
 		case "running":
 			return { background: DARK, text: "#7ee08f", line1, line2: formatClock(nowSeconds - item.start) };
 		case "paused":
@@ -57,16 +61,38 @@ function flash(colour: string, line1: string, line2: string, on: boolean): Look 
 }
 
 export function renderKey(l: Look): string {
+	if (l.line3) {
+		return renderThreeLines(l);
+	}
 	// With an account line on top, everything shifts down and shrinks a little
 	const top = l.top ? text(l.top, 28, fontSize(l.top, 18), l.text, 0.75) : "";
 	const [y1, y2, max1, max2] = l.top
 		? l.line2 ? [74, 112, 26, 26] : [92, 0, 28, 0]
 		: l.line2 ? [64, 106, 30, 28] : [82, 0, 30, 0];
-	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
-<rect width="144" height="144" fill="${l.background}"/>
-${top}
+	return svgKey(l.background, `${top}
 ${text(l.line1, y1, fontSize(l.line1, max1), l.text)}
-${l.line2 ? text(l.line2, y2, fontSize(l.line2, max2), l.text) : ""}
+${l.line2 ? text(l.line2, y2, fontSize(l.line2, max2), l.text) : ""}`);
+}
+
+/** Name, value and a bottom line as big as the name (shrunk only if it wouldn't fit). */
+function renderThreeLines(l: Look): string {
+	const [yTop, y1, y2, y3, max] = l.top ? [22, 54, 90, 126, 24] : [0, 42, 82, 124, 28];
+	const line3 = l.line3 ?? "";
+	// The name and the bottom line share one size: the largest both fit at
+	const size = Math.min(fontSize(l.line1, max), fontSize(line3, max));
+	return svgKey(
+		l.background,
+		`${l.top ? text(l.top, yTop, fontSize(l.top, 16), l.text, 0.75) : ""}
+${text(l.line1, y1, size, l.text)}
+${text(l.line2, y2, fontSize(l.line2, max), l.text)}
+${text(line3, y3, size, l.text)}`
+	);
+}
+
+function svgKey(background: string, body: string): string {
+	const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="144" height="144" viewBox="0 0 144 144">
+<rect width="144" height="144" fill="${background}"/>
+${body}
 </svg>`;
 	return `data:image/svg+xml;charset=utf8,${encodeURIComponent(svg)}`;
 }
@@ -75,9 +101,13 @@ function text(value: string, y: number, size: number, fill: string, opacity = 1)
 	return `<text x="72" y="${y}" font-family="Arial, Helvetica, sans-serif" font-weight="bold" font-size="${size}" fill="${fill}" fill-opacity="${opacity}" text-anchor="middle">${escape(value)}</text>`;
 }
 
-/** Shrinks long text to fit the key's width; Arial bold capitals are about 0.72em wide. */
+/** Shrinks text to fit the key's width, using Arial Bold's character widths in em. */
 function fontSize(value: string, max: number): number {
-	return Math.max(12, Math.min(max, Math.floor(132 / (Math.max(1, value.length) * 0.72))));
+	let em = 0;
+	for (const c of value) {
+		em += c === " " ? 0.28 : c === ":" ? 0.33 : /[0-9]/.test(c) ? 0.56 : /[a-z]/.test(c) ? 0.58 : 0.72;
+	}
+	return Math.max(12, Math.min(max, Math.floor(132 / Math.max(0.72, em))));
 }
 
 /** 0:42, 12:05, 1:02:03 */
@@ -87,6 +117,12 @@ export function formatClock(seconds: number): string {
 	const m = Math.floor((total % 3600) / 60);
 	const s = String(total % 60).padStart(2, "0");
 	return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
+}
+
+/** Weekday and 24-hour local time of an epoch second, e.g. SAT 14:30. */
+export function formatWhen(epochSeconds: number): string {
+	const d = new Date(epochSeconds * 1000);
+	return `${DAYS[d.getDay()]} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
 /** 12:05 under an hour, 3h 05m under a day, then 2d 4h. */

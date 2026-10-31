@@ -329,7 +329,7 @@ function contract(profile: Profile, nowSeconds: number): TrackedItem {
 		} else {
 			end = Math.min(p.done, end);
 			if (end <= nowSeconds) {
-				return item(id, name, label, "ready");
+				return { ...item(id, name, label, "ready"), end };
 			}
 			state = "countdown";
 		}
@@ -401,5 +401,6 @@ function item(id: string, name: string, label: string, state: TrackedItem["state
 }
 
 function countdown(id: string, name: string, label: string, end: number, nowSeconds: number): TrackedItem {
-	return end <= nowSeconds ? item(id, name, label, "ready") : { ...item(id, name, label, "countdown"), end };
+	// Keep the end time either way, so a ready key can still show when it became ready
+	return { ...item(id, name, label, end <= nowSeconds ? "ready" : "countdown"), end };
 }
