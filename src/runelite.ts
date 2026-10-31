@@ -88,34 +88,42 @@ export async function readAccounts(nowSeconds = Date.now() / 1000): Promise<Rune
 	const settings = await activeProfile();
 
 	// Several profile keys can share a name (leagues, old logins); use the standard one with the newest data
-	const best = new Map<string, { key: string; lastSeen: number }>();
-	for (const [prop, name] of rs) {
+	const best = new Map<string, { key: string; name: string; lastSeen: number }>();
+	for (const [prop, rawName] of rs) {
 		const match = /^rsprofile\.rsprofile\.([^.]+)\.displayName$/.exec(prop);
 		if (!match || rs.get(`rsprofile.rsprofile.${match[1]}.type`) !== "STANDARD") {
 			continue;
 		}
+		const name = cleanName(rawName);
 		const lastSeen = latestTimestamp(rs, match[1]);
 		const current = best.get(name.toLowerCase());
 		if (lastSeen > 0 && (!current || lastSeen > current.lastSeen)) {
-			best.set(name.toLowerCase(), { key: match[1], lastSeen });
+			best.set(name.toLowerCase(), { key: match[1], name, lastSeen });
 		}
 	}
 
 	const clocks = clockItems(settings, nowSeconds);
 	const preferSoonest = settings.get(`${GROUP}.preferSoonest`) === "true";
 	const accounts: RuneLiteAccount[] = [];
-	for (const { key, lastSeen } of best.values()) {
+	for (const { key, name, lastSeen } of best.values()) {
 		if (nowSeconds - lastSeen > FORGOTTEN_SECONDS) {
 			continue;
 		}
 		const profile = new Profile(rs, key);
 		accounts.push({
-			name: rs.get(`rsprofile.rsprofile.${key}.displayName`) ?? key,
+			name,
 			lastSeen,
 			tracking: [...farmingItems(profile, preferSoonest, nowSeconds), birdHouses(profile, nowSeconds), contract(profile, nowSeconds), ...clocks]
 		});
 	}
 	return accounts.sort((a, b) => b.lastSeen - a.lastSeen);
+}
+
+const NBSP = String.fromCharCode(0xa0);
+
+/** RuneScape names can contain non-breaking spaces; window titles are matched with plain ones. */
+function cleanName(name: string): string {
+	return name.split(NBSP).join(" ").trim();
 }
 
 function latestTimestamp(rs: Map<string, string>, key: string): number {

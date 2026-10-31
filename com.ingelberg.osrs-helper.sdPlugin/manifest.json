@@ -45,7 +45,6 @@
 	"CodePath": "bin/plugin.js",
 	"Description": "Old School RuneScape on your Stream Deck: an idle alert key, and keys for every farming patch type, bird houses, the farming contract, timers and stopwatches from RuneLite's Time Tracking. Works with RuneLite as it is, no extra plugins needed.",
 	"Icon": "imgs/plugin",
-	"URL": "https://github.com/Ingelberg/osrs-helper-streamdeck",
 	"SDKVersion": 3,
 	"Software": {
 		"MinimumVersion": "7.1"

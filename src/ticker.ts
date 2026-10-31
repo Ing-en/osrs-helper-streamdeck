@@ -40,15 +40,26 @@ export function refresh(): void {
 	}
 }
 
+let running = false;
+
 async function run(): Promise<void> {
-	count++;
-	latest = await readSnapshot();
-	for (const listener of listeners) {
-		await listener(latest);
+	// A slow read (RuneLite saving a big profile) must not start a second update on top of this one
+	if (running) {
+		return;
 	}
-	for (const action of actions) {
-		if (action.visible > 0) {
-			await action.tick(latest, count);
+	running = true;
+	try {
+		count++;
+		latest = await readSnapshot();
+		for (const listener of listeners) {
+			await listener(latest);
 		}
+		for (const action of actions) {
+			if (action.visible > 0) {
+				await action.tick(latest, count);
+			}
+		}
+	} finally {
+		running = false;
 	}
 }
