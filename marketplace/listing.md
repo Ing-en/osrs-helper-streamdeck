@@ -11,6 +11,12 @@ Requirements: Windows and the RuneLite client for Old School RuneScape. No extra
 ## Release notes (1.0.0)
 First release: Idle Alert and Time Tracking keys, per-account watching, and press to bring RuneLite to the front.
 
+## AI usage declaration
+OSRS Helper was built with AI assistance: the code was written with Anthropic's Claude, directed by me. I chose the features and design, tested every change on my own Stream Deck and RuneLite setup, and reported the bugs that were fixed. The marketplace images were also made with Claude, from the plugin's real key designs. Farming predictions are ported from RuneLite's open-source Time Tracking plugin (BSD-2-Clause, credited in THIRD-PARTY-NOTICES.txt).
+
+## Support link
+https://github.com/Ingelberg/osrs-helper-streamdeck/issues
+
 ## Media
 - App icon: app-icon-288.png (288 x 288)
 - Thumbnail: thumbnail-1920x960.png

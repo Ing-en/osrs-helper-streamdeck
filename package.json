@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Old School RuneScape keys for Stream Deck: idle alert and Time Tracking, read straight from RuneLite",
   "scripts": {
-    "build": "rollup -c",
-    "watch": "rollup -c -w --watch.onEnd=\"streamdeck restart com.ingelberg.osrs-helper\"",
+    "build": "node scripts/build-helper.mjs && node scripts/notices.mjs && rollup -c",
+    "watch": "node scripts/build-helper.mjs && rollup -c -w --watch.onEnd=\"streamdeck restart com.ingelberg.osrs-helper\"",
     "pack": "npm run build && streamdeck pack com.ingelberg.osrs-helper.sdPlugin --output dist --force"
   },
   "author": "Ingelberg",

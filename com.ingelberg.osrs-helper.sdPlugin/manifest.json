@@ -58,5 +58,6 @@
 	"Nodejs": {
 		"Version": "24"
 	},
-	"UUID": "com.ingelberg.osrs-helper"
+	"UUID": "com.ingelberg.osrs-helper",
+	"URL": "https://github.com/Ingelberg/osrs-helper-streamdeck"
 }
