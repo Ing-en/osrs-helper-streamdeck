@@ -4,13 +4,14 @@ import { Goal } from "./actions/goal";
 import { IdleAlert } from "./actions/idle-alert";
 import { options, TimeTracking } from "./actions/time-tracking";
 import { TempleUpdate, WiseOldManUpdate } from "./actions/tracker-update";
+import { UpdateAll } from "./actions/update-all";
 import { startIdleWatch } from "./idle";
 import { accountOptions } from "./state";
 import { onSnapshot, register } from "./ticker";
 
 streamDeck.logger.setLevel("info");
 
-for (const a of [new IdleAlert(), new TimeTracking(), new WiseOldManUpdate(), new TempleUpdate(), new Goal()]) {
+for (const a of [new IdleAlert(), new TimeTracking(), new WiseOldManUpdate(), new TempleUpdate(), new UpdateAll(), new Goal()]) {
 	register(a);
 	streamDeck.actions.registerAction(a);
 }

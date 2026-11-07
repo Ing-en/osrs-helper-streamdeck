@@ -2,7 +2,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 
-import { request, type TrackerId } from "./trackers";
+import { onUpdated, request, type TrackerId } from "./trackers";
 
 /**
  * Player stats from Wise Old Man or TempleOSRS: skill XP plus boss and activity counts, keyed by Wise Old Man's metric
@@ -218,6 +218,9 @@ async function refreshStats(source: TrackerId, player: string, period: Period, p
 		cache.set(key, { snapshot, gains, offline: true, fetched: Date.now(), pending: false });
 	}
 }
+
+// Any key getting a site to update a player makes goal keys for that player fetch again
+onUpdated((source, player) => invalidateStats(source, player));
 
 // ---- Goals
 

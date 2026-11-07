@@ -76,6 +76,24 @@
 			"UserTitleEnabled": false
 		},
 		{
+			"Name": "Update All Stats",
+			"UUID": "com.ingen.osrs-helper.updateall",
+			"Icon": "imgs/actions/updateall",
+			"Tooltip": "Updates a player on both Wise Old Man and TempleOSRS with one press.",
+			"PropertyInspectorPath": "ui/updateall.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/keys/updateall",
+					"ShowTitle": false
+				}
+			],
+			"UserTitleEnabled": false
+		},
+		{
 			"Name": "Goal Countdown",
 			"UUID": "com.ingen.osrs-helper.goal",
 			"Icon": "imgs/actions/goal",

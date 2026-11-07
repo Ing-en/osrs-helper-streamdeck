@@ -11,9 +11,8 @@ import type { JsonValue } from "@elgato/utils";
 
 import { renderKey, updateLook } from "../render";
 import { accountOptions, findAccount, isAny, type Snapshot } from "../state";
-import { invalidateStats } from "../stats";
 import { refresh, snapshot, type Ticking } from "../ticker";
-import { TRACKERS, type TrackerId, type UpdateResult } from "../trackers";
+import { onUpdated, TRACKERS, updatePlayer, type TrackerId, type UpdateResult } from "../trackers";
 
 type Settings = {
 	account?: string;
@@ -42,6 +41,12 @@ class TrackerUpdate extends SingletonAction<Settings> implements Ticking {
 
 	constructor(private readonly tracker: TrackerId) {
 		super();
+		// Another key (the combined one, or a goal key) updated a player this key may be showing
+		onUpdated((tracker, player) => {
+			if (tracker === this.tracker) {
+				this.lastUpdated.set(player.toLowerCase(), { at: Date.now(), fetched: Date.now() });
+			}
+		});
 	}
 
 	get visible(): number {
@@ -79,20 +84,10 @@ class TrackerUpdate extends SingletonAction<Settings> implements Ticking {
 		const tracker = TRACKERS[this.tracker];
 		this.updating.add(key);
 		this.results.delete(ev.action.id);
-		let result: UpdateResult;
-		try {
-			result = await tracker.update(player);
-		} catch (e) {
-			result = { outcome: "failed", message: e instanceof Error ? e.message : String(e) };
-		} finally {
-			this.updating.delete(key);
-		}
+		const result = await updatePlayer(this.tracker, player);
+		this.updating.delete(key);
 
-		if (result.outcome === "updated") {
-			this.lastUpdated.set(key, { at: Date.now(), fetched: Date.now() });
-			// Goal keys for this player pick up the new stats
-			invalidateStats(this.tracker, player);
-		} else {
+		if (result.outcome !== "updated") {
 			streamDeck.logger.warn(`${tracker.label} update of ${player}: ${result.outcome} (${result.message})`);
 			// A refused update still tells us the site has recent data; look up when
 			this.lastUpdated.delete(key);

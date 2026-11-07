@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+	<head lang="en">
+		<title>Update All Settings</title>
+		<meta charset="utf-8" />
+		<script src="sdpi-components.js"></script>
+	</head>
+
+	<body>
+		<sdpi-item label="Account">
+			<sdpi-select setting="account" datasource="getAccounts" hot-reload default="any" loading="Loading..."></sdpi-select>
+		</sdpi-item>
+		<sdpi-item label="Or name">
+			<sdpi-textfield setting="player" placeholder="Any player, e.g. one not on this PC"></sdpi-textfield>
+		</sdpi-item>
+		<sdpi-item label="After updating">
+			<sdpi-checkbox setting="openProfile" label="Open both profile pages"></sdpi-checkbox>
+		</sdpi-item>
+		<p style="color: #969696; font-size: 9pt; margin: 8px 16px">
+			Press the key to update the account on Wise Old Man and TempleOSRS at once. <b>Any account</b> updates the one you played last. The bottom line shows how long ago the less recently updated site last updated it. Each site updates a player at most once a minute.
+		</p>
+		<p style="font-size: 9pt; margin: 8px 16px">
+			<a href="https://github.com/Ing-en/osrs-helper-streamdeck/issues" target="_blank">Help &amp; support</a>
+		</p>
+	</body>
+</html>

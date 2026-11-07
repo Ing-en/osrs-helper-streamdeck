@@ -4,9 +4,9 @@ import type { TrackerId } from "./trackers";
 
 /**
  * `top` is a small line above the rest, used for the account name; `line3` sits at the bottom, sized like `line1`.
- * With `logo`, the site's logo takes the place of `line1`.
+ * With `logo`, the site's logo (or both sites' logos) takes the place of `line1`.
  */
-export type Look = { background: string; text: string; line1: string; line2: string; line3?: string; top?: string; logo?: TrackerId };
+export type Look = { background: string; text: string; line1: string; line2: string; line3?: string; top?: string; logo?: TrackerId | "both" };
 
 const DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
@@ -121,6 +121,34 @@ export function goalLook(status: GoalStatus, label: string, player: string | und
 	}
 }
 
+export type CombinedStatus = "ready" | "updating" | "updated" | "recent" | "womonly" | "templeonly" | "notfound" | "failed" | "noname";
+
+/** Picks colours and text for the key that updates a player on both sites. `lastUpdated` is the older site's, epoch millis. */
+export function combinedLook(status: CombinedStatus, player: string | undefined, lastUpdated: number | undefined, now = Date.now()): Look {
+	const line3 = lastUpdated ? formatAgo((now - lastUpdated) / 1000) : undefined;
+	const look = (background: string, text: string, line2: string): Look => ({ background, text, line1: "", line2, line3, top: player, logo: "both" });
+	switch (status) {
+		case "noname":
+			return { background: DARK, text: GREY, line1: "", line2: "SET NAME", logo: "both" };
+		case "ready":
+			return look(DARK, "#ffffff", "UPDATE ALL");
+		case "updating":
+			return look(DARK, GREY, "UPDATING");
+		case "updated":
+			return look(GREEN, "#ffffff", "UPDATED");
+		case "recent":
+			return look("#e65100", "#ffffff", "TOO SOON");
+		case "womonly":
+			return look("#e65100", "#ffffff", "WOM ONLY");
+		case "templeonly":
+			return look("#e65100", "#ffffff", "TEMPLE ONLY");
+		case "notfound":
+			return look("#c62828", "#ffffff", "NOT FOUND");
+		default:
+			return look("#c62828", "#ffffff", "FAILED");
+	}
+}
+
 function flash(colour: string, line1: string, line2: string, on: boolean): Look {
 	return on ? { background: colour, text: "#ffffff", line1, line2 } : { background: DARK, text: colour, line1, line2 };
 }
@@ -157,8 +185,18 @@ ${text(line3, y3, size, l.text)}`
 	);
 }
 
+/** One site's logo centred, or Wise Old Man's and Temple's side by side. */
+function logos(tracker: TrackerId | "both", top: number, height: number, colour: string): string {
+	if (tracker !== "both") {
+		return logo(tracker, 72, top, height, colour);
+	}
+	// Temple's logo is wide and Wise Old Man's tall, so Temple gets a little less height
+	const templeHeight = Math.round(height * 0.75);
+	return `${logo("wom", 46, top, height, colour)}${logo("temple", 98, top + (height - templeHeight) / 2, templeHeight, colour)}`;
+}
+
 /** Account name, the site's logo, then `line2` and an optional smaller `line3`. */
-function renderLogo(l: Look, tracker: TrackerId): string {
+function renderLogo(l: Look, tracker: TrackerId | "both"): string {
 	// Lines that are missing give their room to the logo
 	const logoTop = l.top ? 26 : 12;
 	const logoBottom = l.line3 ? 82 : 92;
@@ -168,7 +206,7 @@ function renderLogo(l: Look, tracker: TrackerId): string {
 	return svgKey(
 		l.background,
 		`${l.top ? text(l.top, 18, fontSize(l.top, 15), l.text === GREY ? GREY : "#ffffff", 0.75) : ""}
-${logo(tracker, 72, logoTop, logoBottom - logoTop, colour)}
+${logos(tracker, logoTop, logoBottom - logoTop, colour)}
 ${text(l.line2, y2, fontSize(l.line2, 24), l.text)}
 ${l.line3 ? text(l.line3, 136, fontSize(l.line3, 20), l.text === GREY ? GREY : "#ffffff") : ""}`
 	);

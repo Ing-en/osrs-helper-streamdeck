@@ -14,7 +14,7 @@ import { goalLook, renderKey, type GoalStatus } from "../render";
 import { accountOptions, type Snapshot } from "../state";
 import { goalProgress, invalidateStats, playerStats, xpForLevel, type Period } from "../stats";
 import { refresh, snapshot, type Ticking } from "../ticker";
-import { TRACKERS, type TrackerId } from "../trackers";
+import { TRACKERS, updatePlayer, type TrackerId } from "../trackers";
 import { playerName } from "./tracker-update";
 
 type Settings = {
@@ -93,17 +93,13 @@ export class Goal extends SingletonAction<Settings> implements Ticking {
 			return;
 		}
 		this.updating.add(key);
-		try {
-			const result = await TRACKERS[source].update(player);
-			if (result.outcome === "failed") {
-				streamDeck.logger.warn(`Goal key: ${source} update of ${player} failed (${result.message})`);
-			}
-		} catch {
-			// Offline: the key keeps showing the saved stats
-		} finally {
-			this.updating.delete(key);
-			invalidateStats(source, player);
+		const result = await updatePlayer(source, player);
+		if (result.outcome === "failed") {
+			streamDeck.logger.warn(`Goal key: ${source} update of ${player} failed (${result.message})`);
 		}
+		this.updating.delete(key);
+		// Also when the site refused ("too soon"): its data is recent either way
+		invalidateStats(source, player);
 		if (settings.openProfile) {
 			await streamDeck.system.openUrl(TRACKERS[source].profileUrl(player));
 		}

@@ -22,6 +22,30 @@ export async function request(url: string, method = "GET"): Promise<Response> {
 
 const name = (player: string) => encodeURIComponent(player.trim());
 
+type UpdatedListener = (tracker: TrackerId, player: string) => void;
+const updatedListeners: UpdatedListener[] = [];
+
+/** Called whenever any key gets a site to update a player, so other keys showing that player can refresh. */
+export function onUpdated(listener: UpdatedListener): void {
+	updatedListeners.push(listener);
+}
+
+/** Asks a site to update a player, telling `onUpdated` listeners when it did. Never throws. */
+export async function updatePlayer(tracker: TrackerId, player: string): Promise<UpdateResult> {
+	let result: UpdateResult;
+	try {
+		result = await TRACKERS[tracker].update(player);
+	} catch (e) {
+		result = { outcome: "failed", message: e instanceof Error ? e.message : String(e) };
+	}
+	if (result.outcome === "updated") {
+		for (const listener of updatedListeners) {
+			listener(tracker, player);
+		}
+	}
+	return result;
+}
+
 export const TRACKERS: Record<TrackerId, Tracker> = {
 	wom: {
 		label: "WOM",
