@@ -38,6 +38,60 @@
 				}
 			],
 			"UserTitleEnabled": false
+		},
+		{
+			"Name": "Wise Old Man Update",
+			"UUID": "com.ingen.osrs-helper.wom",
+			"Icon": "imgs/actions/wom",
+			"Tooltip": "Updates your account on Wise Old Man and shows how long ago it was last updated.",
+			"PropertyInspectorPath": "ui/update.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/keys/wom",
+					"ShowTitle": false
+				}
+			],
+			"UserTitleEnabled": false
+		},
+		{
+			"Name": "TempleOSRS Update",
+			"UUID": "com.ingen.osrs-helper.temple",
+			"Icon": "imgs/actions/temple",
+			"Tooltip": "Updates your account on TempleOSRS and shows how long ago it was last updated.",
+			"PropertyInspectorPath": "ui/update.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/keys/temple",
+					"ShowTitle": false
+				}
+			],
+			"UserTitleEnabled": false
+		},
+		{
+			"Name": "Goal Countdown",
+			"UUID": "com.ingen.osrs-helper.goal",
+			"Icon": "imgs/actions/goal",
+			"Tooltip": "Counts down in hours and days until a skill level, XP or kill count goal is reached at your recent Wise Old Man or TempleOSRS rate.",
+			"PropertyInspectorPath": "ui/goal.html",
+			"Controllers": [
+				"Keypad"
+			],
+			"DisableAutomaticStates": true,
+			"States": [
+				{
+					"Image": "imgs/keys/goal",
+					"ShowTitle": false
+				}
+			],
+			"UserTitleEnabled": false
 		}
 	],
 	"Category": "OSRS Helper",

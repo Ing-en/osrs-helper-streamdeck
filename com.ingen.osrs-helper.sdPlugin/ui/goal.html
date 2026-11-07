@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+	<head lang="en">
+		<title>Goal Settings</title>
+		<meta charset="utf-8" />
+		<script src="sdpi-components.js"></script>
+	</head>
+
+	<body>
+		<sdpi-item label="Account">
+			<sdpi-select setting="account" datasource="getAccounts" hot-reload default="any" loading="Loading..."></sdpi-select>
+		</sdpi-item>
+		<sdpi-item label="Or name">
+			<sdpi-textfield setting="player" placeholder="Any player, e.g. one not on this PC"></sdpi-textfield>
+		</sdpi-item>
+		<sdpi-item label="Stats from">
+			<sdpi-select setting="source" default="wom">
+				<option value="wom">Wise Old Man</option>
+				<option value="temple">TempleOSRS</option>
+			</sdpi-select>
+		</sdpi-item>
+		<sdpi-item label="Goal">
+			<sdpi-select setting="metric" placeholder="Pick a skill, boss or activity">
+				<optgroup label="Skills">
+					<option value="overall">Overall (total XP)</option>
+					<option value="attack">Attack</option>
+					<option value="defence">Defence</option>
+					<option value="strength">Strength</option>
+					<option value="hitpoints">Hitpoints</option>
+					<option value="ranged">Ranged</option>
+					<option value="prayer">Prayer</option>
+					<option value="magic">Magic</option>
+					<option value="cooking">Cooking</option>
+					<option value="woodcutting">Woodcutting</option>
+					<option value="fletching">Fletching</option>
+					<option value="fishing">Fishing</option>
+					<option value="firemaking">Firemaking</option>
+					<option value="crafting">Crafting</option>
+					<option value="smithing">Smithing</option>
+					<option value="mining">Mining</option>
+					<option value="herblore">Herblore</option>
+					<option value="agility">Agility</option>
+					<option value="thieving">Thieving</option>
+					<option value="slayer">Slayer</option>
+					<option value="farming">Farming</option>
+					<option value="runecrafting">Runecraft</option>
+					<option value="hunter">Hunter</option>
+					<option value="construction">Construction</option>
+					<option value="sailing">Sailing</option>
+				</optgroup>
+				<optgroup label="Bosses">
+					<option value="abyssal_sire">Abyssal Sire</option>
+					<option value="alchemical_hydra">Alchemical Hydra</option>
+					<option value="amoxliatl">Amoxliatl</option>
+					<option value="araxxor">Araxxor</option>
+					<option value="artio">Artio</option>
+					<option value="barrows_chests">Barrows Chests</option>
+					<option value="brutus">Brutus</option>
+					<option value="bryophyta">Bryophyta</option>
+					<option value="callisto">Callisto</option>
+					<option value="calvarion">Calvarion</option>
+					<option value="cerberus">Cerberus</option>
+					<option value="chambers_of_xeric">Chambers of Xeric</option>
+					<option value="chambers_of_xeric_challenge_mode">Chambers of Xeric: Challenge Mode</option>
+					<option value="chaos_elemental">Chaos Elemental</option>
+					<option value="chaos_fanatic">Chaos Fanatic</option>
+					<option value="commander_zilyana">Commander Zilyana</option>
+					<option value="corporeal_beast">Corporeal Beast</option>
+					<option value="crazy_archaeologist">Crazy Archaeologist</option>
+					<option value="dagannoth_prime">Dagannoth Prime</option>
+					<option value="dagannoth_rex">Dagannoth Rex</option>
+					<option value="dagannoth_supreme">Dagannoth Supreme</option>
+					<option value="deranged_archaeologist">Deranged Archaeologist</option>
+					<option value="doom_of_mokhaiotl">Doom of Mokhaiotl</option>
+					<option value="duke_sucellus">Duke Sucellus</option>
+					<option value="general_graardor">General Graardor</option>
+					<option value="giant_mole">Giant Mole</option>
+					<option value="grotesque_guardians">Grotesque Guardians</option>
+					<option value="hespori">Hespori</option>
+					<option value="kalphite_queen">Kalphite Queen</option>
+					<option value="king_black_dragon">King Black Dragon</option>
+					<option value="kraken">Kraken</option>
+					<option value="kreearra">Kree'arra</option>
+					<option value="kril_tsutsaroth">K'ril Tsutsaroth</option>
+					<option value="lunar_chests">Lunar Chests</option>
+					<option value="mad_angel">Mad Angel</option>
+					<option value="maggot_king">Maggot King</option>
+					<option value="mimic">Mimic</option>
+					<option value="nex">Nex</option>
+					<option value="nightmare">Nightmare</option>
+					<option value="phosanis_nightmare">Phosani's Nightmare</option>
+					<option value="obor">Obor</option>
+					<option value="phantom_muspah">Phantom Muspah</option>
+					<option value="sarachnis">Sarachnis</option>
+					<option value="scorpia">Scorpia</option>
+					<option value="scurrius">Scurrius</option>
+					<option value="shellbane_gryphon">Shellbane Gryphon</option>
+					<option value="skotizo">Skotizo</option>
+					<option value="sol_heredit">Sol Heredit</option>
+					<option value="spindel">Spindel</option>
+					<option value="tempoross">Tempoross</option>
+					<option value="the_gauntlet">The Gauntlet</option>
+					<option value="the_corrupted_gauntlet">The Corrupted Gauntlet</option>
+					<option value="the_fractured_archive">The Fractured Archive</option>
+					<option value="the_hueycoatl">The Hueycoatl</option>
+					<option value="the_leviathan">The Leviathan</option>
+					<option value="the_royal_titans">The Royal Titans</option>
+					<option value="the_whisperer">The Whisperer</option>
+					<option value="theatre_of_blood">Theatre of Blood</option>
+					<option value="theatre_of_blood_hard_mode">Theatre of Blood: Hard Mode</option>
+					<option value="thermonuclear_smoke_devil">Thermonuclear Smoke Devil</option>
+					<option value="tombs_of_amascut">Tombs of Amascut</option>
+					<option value="tombs_of_amascut_expert">Tombs of Amascut: Expert</option>
+					<option value="tzkal_zuk">TzKal-Zuk</option>
+					<option value="tztok_jad">TzTok-Jad</option>
+					<option value="vardorvis">Vardorvis</option>
+					<option value="venenatis">Venenatis</option>
+					<option value="vetion">Vet'ion</option>
+					<option value="vorkath">Vorkath</option>
+					<option value="wintertodt">Wintertodt</option>
+					<option value="yama">Yama</option>
+					<option value="zalcano">Zalcano</option>
+					<option value="zulrah">Zulrah</option>
+				</optgroup>
+				<optgroup label="Activities">
+					<option value="clue_scrolls_all">Clue Scrolls All</option>
+					<option value="clue_scrolls_beginner">Clue Scrolls Beginner</option>
+					<option value="clue_scrolls_easy">Clue Scrolls Easy</option>
+					<option value="clue_scrolls_medium">Clue Scrolls Medium</option>
+					<option value="clue_scrolls_hard">Clue Scrolls Hard</option>
+					<option value="clue_scrolls_elite">Clue Scrolls Elite</option>
+					<option value="clue_scrolls_master">Clue Scrolls Master</option>
+					<option value="last_man_standing">Last Man Standing</option>
+					<option value="pvp_arena">PvP Arena</option>
+					<option value="soul_wars_zeal">Soul Wars Zeal</option>
+					<option value="guardians_of_the_rift">Guardians of the Rift</option>
+					<option value="colosseum_glory">Colosseum Glory</option>
+					<option value="collections_logged">Collections Logged</option>
+					<option value="bounty_hunter_hunter">Bounty Hunter Hunter</option>
+					<option value="bounty_hunter_rogue">Bounty Hunter Rogue</option>
+				</optgroup>
+			</sdpi-select>
+		</sdpi-item>
+		<sdpi-item label="Skill goal in">
+			<sdpi-select setting="goalType" default="level">
+				<option value="level">Level</option>
+				<option value="xp">XP</option>
+			</sdpi-select>
+		</sdpi-item>
+		<sdpi-item label="Target">
+			<sdpi-textfield setting="target" placeholder="e.g. 99, 50m or 500"></sdpi-textfield>
+		</sdpi-item>
+		<sdpi-item label="Rate from">
+			<sdpi-select setting="period" default="week">
+				<option value="day">The last day</option>
+				<option value="week">The last week</option>
+				<option value="month">The last month</option>
+			</sdpi-select>
+		</sdpi-item>
+		<sdpi-item label="On press">
+			<sdpi-checkbox setting="openProfile" label="Also open the profile page"></sdpi-checkbox>
+		</sdpi-item>
+		<p style="color: #969696; font-size: 9pt; margin: 8px 16px">
+			Counts down, in hours and days, until the goal is reached at the rate you gained over the chosen period. The bottom line
+			is when that will be. Skill goals are a level (up to 126) or an XP amount; boss and activity goals a kill count or score.
+			Pressing the key updates you on the site and recalculates. Stats are also saved on this PC, so the key keeps working
+			offline.
+		</p>
+		<p style="font-size: 9pt; margin: 8px 16px">
+			<a href="https://github.com/Ing-en/osrs-helper-streamdeck/issues" target="_blank">Help &amp; support</a>
+		</p>
+	</body>
+</html>

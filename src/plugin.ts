@@ -1,19 +1,19 @@
 import streamDeck from "@elgato/streamdeck";
 
+import { Goal } from "./actions/goal";
 import { IdleAlert } from "./actions/idle-alert";
 import { options, TimeTracking } from "./actions/time-tracking";
+import { TempleUpdate, WiseOldManUpdate } from "./actions/tracker-update";
 import { startIdleWatch } from "./idle";
 import { accountOptions } from "./state";
 import { onSnapshot, register } from "./ticker";
 
 streamDeck.logger.setLevel("info");
 
-const idle = new IdleAlert();
-const timeTracking = new TimeTracking();
-register(idle);
-register(timeTracking);
-streamDeck.actions.registerAction(idle);
-streamDeck.actions.registerAction(timeTracking);
+for (const a of [new IdleAlert(), new TimeTracking(), new WiseOldManUpdate(), new TempleUpdate(), new Goal()]) {
+	register(a);
+	streamDeck.actions.registerAction(a);
+}
 
 // Keep an open settings page's dropdowns current: accounts appear after logging in, timers when they're made
 let lastLists = "";

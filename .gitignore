@@ -7,3 +7,4 @@ node_modules/
 dist/
 tools/farming-data/build/
 tools/farming-data/.gradle/
+marketplace/revision-1.0.0.0/
