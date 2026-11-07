@@ -83,47 +83,6 @@ async function activeProfile(): Promise<Map<string, string>> {
 }
 
 /** Every account RuneLite has Time Tracking data for, most recently played first. */
-/** A goal from the user's Daily Goals RuneLite plugin, as it saves them. */
-export type DailyGoal = {
-	id: string;
-	type: "XP" | "LEVEL" | "COUNT" | "KC";
-	skill?: string;
-	overall?: boolean;
-	activity?: string;
-	customName?: string;
-	amount: number;
-	period?: "DAILY" | "WEEKLY";
-	enabled?: boolean;
-};
-
-/** The Daily Goals goals saved for an account (matched by name), or none. */
-export async function readDailyGoals(account: string): Promise<DailyGoal[]> {
-	const rs = await load(RS_PROFILES_FILE);
-	const wanted = cleanName(account).toLowerCase();
-	// Several profile keys can share a name; use the one whose goals list exists, preferring standard worlds
-	let best: { goals: DailyGoal[]; standard: boolean } | undefined;
-	for (const [prop, name] of rs) {
-		const match = /^rsprofile\.rsprofile\.([^.]+)\.displayName$/.exec(prop);
-		if (!match || cleanName(name).toLowerCase() !== wanted) {
-			continue;
-		}
-		const raw = rs.get(`dailygoals.rsprofile.${match[1]}.goals`);
-		if (!raw) {
-			continue;
-		}
-		try {
-			const goals = JSON.parse(raw);
-			const standard = rs.get(`rsprofile.rsprofile.${match[1]}.type`) === "STANDARD";
-			if (Array.isArray(goals) && (!best || (standard && !best.standard))) {
-				best = { goals: goals.filter((g) => g && typeof g.id === "string"), standard };
-			}
-		} catch {
-			// A half-written file; it'll be whole next time
-		}
-	}
-	return best?.goals ?? [];
-}
-
 export async function readAccounts(nowSeconds = Date.now() / 1000): Promise<RuneLiteAccount[]> {
 	const rs = await load(RS_PROFILES_FILE);
 	const settings = await activeProfile();
