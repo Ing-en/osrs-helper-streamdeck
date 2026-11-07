@@ -238,6 +238,26 @@ export type GoalProgress =
 	| { state: "nogains"; remaining: number }
 	| { state: "eta"; eta: number; remaining: number; perHour: number };
 
+/**
+ * For "gain N per day/week" goals: how much of `amount` is still to gain in the period the gains cover (the last 24 hours
+ * or 7 days), and when it's reached at that period's rate.
+ */
+export function gainProgress(stats: PlayerStats, metric: string, amount: number): GoalProgress | undefined {
+	if (!stats.snapshot || !stats.gains) {
+		return undefined;
+	}
+	const gained = stats.gains.values[metric] ?? 0;
+	const remaining = amount - gained;
+	if (remaining <= 0) {
+		return { state: "done" };
+	}
+	const perHour = stats.gains.hours > 0 ? gained / stats.gains.hours : 0;
+	if (perHour <= 0) {
+		return { state: "nogains", remaining };
+	}
+	return { state: "eta", eta: stats.snapshot.at + (remaining / perHour) * 3_600_000, remaining, perHour };
+}
+
 /** How far `target` is from the latest snapshot, and when it's reached at the recent rate. */
 export function goalProgress(stats: PlayerStats, metric: string, target: number): GoalProgress | undefined {
 	const current = stats.snapshot?.values[metric];

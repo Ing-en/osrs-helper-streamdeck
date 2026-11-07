@@ -13,6 +13,9 @@
 		<sdpi-item label="Or name">
 			<sdpi-textfield setting="player" placeholder="Any player, e.g. one not on this PC"></sdpi-textfield>
 		</sdpi-item>
+		<sdpi-item label="From Daily Goals">
+			<sdpi-select setting="dailyGoal" datasource="getDailyGoals" hot-reload loading="Loading..." placeholder="Pick a goal to copy"></sdpi-select>
+		</sdpi-item>
 		<sdpi-item label="Stats from">
 			<sdpi-select setting="source" default="wom">
 				<option value="wom">Wise Old Man</option>
@@ -141,30 +144,32 @@
 				</optgroup>
 			</sdpi-select>
 		</sdpi-item>
-		<sdpi-item label="Skill goal in">
+		<sdpi-item label="Goal is">
 			<sdpi-select setting="goalType" default="level">
-				<option value="level">Level</option>
-				<option value="xp">XP</option>
+				<option value="level">Reach a level</option>
+				<option value="xp">Reach a total (XP or count)</option>
+				<option value="gain">Gain an amount per period</option>
 			</sdpi-select>
 		</sdpi-item>
 		<sdpi-item label="Target">
 			<sdpi-textfield setting="target" placeholder="e.g. 99, 50m or 500"></sdpi-textfield>
 		</sdpi-item>
-		<sdpi-item label="Rate from">
+		<sdpi-item label="Period">
 			<sdpi-select setting="period" default="week">
-				<option value="day">The last day</option>
-				<option value="week">The last week</option>
-				<option value="month">The last month</option>
+				<option value="day">Day</option>
+				<option value="week">Week</option>
+				<option value="month">Month</option>
 			</sdpi-select>
 		</sdpi-item>
 		<sdpi-item label="On press">
 			<sdpi-checkbox setting="openProfile" label="Also open the profile page"></sdpi-checkbox>
 		</sdpi-item>
 		<p style="color: #969696; font-size: 9pt; margin: 8px 16px">
-			Counts down, in hours and days, until the goal is reached at the rate you gained over the chosen period. The bottom line
-			is when that will be. Skill goals are a level (up to 126) or an XP amount; boss and activity goals a kill count or score.
-			Pressing the key updates you on the site and recalculates. Stats are also saved on this PC, so the key keeps working
-			offline.
+			A new key copies its goal from your Daily Goals in RuneLite; pick another there, or change any field yourself.
+			It counts down, in hours and days, until the goal is reached at the rate you gained over the period, and the bottom line
+			is when. Goals are a level (up to 126), a total (XP, kills or score), or an amount to gain each day, week or month, like
+			Daily Goals' XP and kill goals. Pressing the key updates you on the site and recalculates. Stats are also saved on this
+			PC, so the key keeps working offline.
 		</p>
 		<p style="font-size: 9pt; margin: 8px 16px">
 			<a href="https://github.com/Ing-en/osrs-helper-streamdeck/issues" target="_blank">Help &amp; support</a>
