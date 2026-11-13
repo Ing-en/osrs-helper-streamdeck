@@ -18,7 +18,8 @@ const PROFILES_DIR = path.join(os.homedir(), ".runelite", "profiles2");
 const RS_PROFILES_FILE = path.join(PROFILES_DIR, "$rsprofile--1.properties");
 const GROUP = "timetracking";
 const BIRD_HOUSE_SECONDS = 50 * 60;
-const BIRD_HOUSE_MAX_VARP = 4 * 3;
+// BirdHouseState.fromVarpValue: values up to 3 per bird house type (normal through redwood, 9 types)
+const BIRD_HOUSE_MAX_VARP = 9 * 3;
 const AUTOWEED_ON = "2";
 /** Accounts with no Time Tracking activity for this long are left out of the account list. */
 const FORGOTTEN_SECONDS = 90 * 24 * 3600;
