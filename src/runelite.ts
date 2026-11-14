@@ -212,12 +212,15 @@ function farmingItems(profile: Profile, preferSoonest: boolean, nowSeconds: numb
 		let extremum = preferSoonest ? Number.MAX_SAFE_INTEGER : 0;
 		let allUnknown = true;
 		let allEmpty = true;
+		let diseased = false;
 		for (const key of patchKeys) {
 			const p = predict(profile, key);
 			if (!p || (PRODUCE[p.produce]?.itemId ?? -1) < 0) {
 				continue;
 			}
 			allUnknown = false;
+			// Disease needs curing before it kills the crop
+			diseased ||= p.crop === "DISEASED";
 			if (p.produce !== "WEEDS" && p.produce !== "SCARECROW" && p.crop !== "EMPTY" && p.crop !== "FILLING") {
 				allEmpty = false;
 				extremum = preferSoonest ? Math.min(extremum, p.done) : Math.max(extremum, p.done);
@@ -227,10 +230,8 @@ function farmingItems(profile: Profile, preferSoonest: boolean, nowSeconds: numb
 		if (allUnknown) {
 			return item(id, name, label, "unknown");
 		}
-		if (allEmpty) {
-			return item(id, name, label, "empty");
-		}
-		return countdown(id, name, label, extremum, nowSeconds);
+		const summary = allEmpty ? item(id, name, label, "empty") : countdown(id, name, label, extremum, nowSeconds);
+		return diseased ? { ...summary, problem: "diseased" } : summary;
 	});
 }
 

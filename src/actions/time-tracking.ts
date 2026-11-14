@@ -33,6 +33,11 @@ type Settings = {
 
 type Option = { label: string; value: string };
 
+/** Bird houses take 50 minutes to fill once seeded (RuneLite's BIRD_HOUSE_DURATION). */
+const BIRD_HOUSE_MILLIS = 50 * 60_000;
+/** Saved bird house data seeded this long before a press is taken as that reset having been saved. */
+const RESET_SAVE_SLACK_MILLIS = 10 * 60_000;
+
 /**
  * A key showing one thing RuneLite's Time Tracking plugin tracks: a farming patch type, bird houses, the farming contract,
  * a timer or a stopwatch.
@@ -43,6 +48,11 @@ export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 	private readonly lastImage = new Map<string, string>();
 	// Keys whose "ready" flash was stopped by pressing them; cleared once the item stops being ready
 	private readonly dismissed = new Set<string>();
+	/**
+	 * Bird house keys pressed after a reset, by when: RuneLite only writes to disk every 5 minutes, so until it has saved
+	 * the new seeds, the key counts down from the press instead of still saying READY.
+	 */
+	private readonly birdHouseResets = new Map<string, number>();
 
 	get visible(): number {
 		return this.settings.size;
@@ -70,7 +80,11 @@ export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 	override onKeyDown(ev: KeyDownEvent<Settings>): void {
 		const { account, item: id } = ev.payload.settings;
 		const item = pickTracked(snapshot(), account, id);
-		if (item && effectiveState(item) === "ready") {
+		const state = item && effectiveState(item);
+		if (item?.id === "birdhouse" && (state === "ready" || state === "empty")) {
+			// Pressed after collecting and re-seeding them in game
+			this.birdHouseResets.set(ev.action.id, Date.now());
+		} else if (state === "ready") {
 			this.dismissed.add(ev.action.id);
 		}
 		if (ev.payload.settings.focusOnPress !== false) {
@@ -97,7 +111,7 @@ export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 				continue;
 			}
 			const settings = this.settings.get(a.id) ?? {};
-			const item = pickTracked(snap, settings.account, settings.item) ?? placeholder(settings.item);
+			const item = this.withBirdHouseReset(a.id, pickTracked(snap, settings.account, settings.item) ?? placeholder(settings.item));
 
 			if (effectiveState(item) !== "ready") {
 				this.dismissed.delete(a.id);
@@ -115,6 +129,21 @@ export class TimeTracking extends SingletonAction<Settings> implements Ticking {
 				await a.setImage(image);
 			}
 		}
+	}
+
+	/** The item, or for a bird house key pressed after a reset, a countdown from that press until RuneLite saves the reset. */
+	private withBirdHouseReset(actionId: string, item: TrackedItem): TrackedItem {
+		const pressed = this.birdHouseResets.get(actionId);
+		if (pressed === undefined || item.id !== "birdhouse") {
+			return item;
+		}
+		const savedSeededAt = item.end > 0 ? item.end * 1000 - BIRD_HOUSE_MILLIS : 0;
+		if (savedSeededAt >= pressed - RESET_SAVE_SLACK_MILLIS || Date.now() > pressed + BIRD_HOUSE_MILLIS) {
+			// RuneLite has saved the new seeds (or the provisional countdown has run out): back to the real data
+			this.birdHouseResets.delete(actionId);
+			return item;
+		}
+		return { ...item, state: "countdown", end: (pressed + BIRD_HOUSE_MILLIS) / 1000 };
 	}
 }
 

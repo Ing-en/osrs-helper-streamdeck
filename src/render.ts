@@ -36,6 +36,10 @@ export function trackedLook(item: TrackedItem, on: boolean, flashReady: boolean,
 	const line1 = item.label;
 	// When it is (or was) ready, if known
 	const line3 = item.end > 0 ? formatWhen(item.end) : undefined;
+	// A diseased crop flashes orange whatever else the patches are doing, so it gets cured in time
+	if (item.problem === "diseased") {
+		return { ...flash("#e65100", line1, "DISEASED", on), line3 };
+	}
 	switch (effectiveState(item, nowSeconds)) {
 		case "ready":
 			// Solid green, blinking to grey while flashing

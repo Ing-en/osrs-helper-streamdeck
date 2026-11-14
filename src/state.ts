@@ -36,6 +36,8 @@ export type TrackedItem = {
 	seconds: number;
 	/** Epoch second a running stopwatch counts up from. */
 	start: number;
+	/** A farming patch type with at least one diseased crop, last time RuneLite saw it. */
+	problem?: "diseased";
 };
 
 export type Account = {
