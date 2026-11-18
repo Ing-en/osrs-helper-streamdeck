@@ -1,7 +1,7 @@
 // Watches RuneLite windows for the OSRS Helper Stream Deck plugin; built into bin/osrs-helper-windows.exe by
 // scripts/build-helper.mjs. Writes tab-separated lines to stdout: once a second "windows", one "window <hwnd> <title>"
-// per RuneLite window, "input <foreground hwnd> <ms since last input>" and "end"; and "flash <hwnd> <title>" whenever a
-// RuneLite taskbar button flashes. Reads "focus <account>" lines from stdin, and exits when stdin closes.
+// per RuneLite window, "input <foreground hwnd> <ms since last input>", "mouse <hwnd>" when the cursor has moved over a
+// window since the last second, and "end"; and "flash <hwnd> <title>" whenever a RuneLite taskbar button flashes. Reads "focus <account>" lines from stdin, and exits when stdin closes.
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
@@ -23,6 +23,10 @@ public class RuneLiteWatcher : NativeWindow {
 	[DllImport("user32.dll")] static extern IntPtr GetForegroundWindow();
 	[StructLayout(LayoutKind.Sequential)] struct LASTINPUTINFO { public uint cbSize; public uint dwTime; }
 	[DllImport("user32.dll")] static extern bool GetLastInputInfo(ref LASTINPUTINFO info);
+	[StructLayout(LayoutKind.Sequential)] struct POINT { public int X; public int Y; }
+	[DllImport("user32.dll")] static extern bool GetCursorPos(out POINT p);
+	[DllImport("user32.dll")] static extern IntPtr WindowFromPoint(POINT p);
+	[DllImport("user32.dll")] static extern IntPtr GetAncestor(IntPtr h, uint flags);
 
 	const int HSHELL_FLASH = 0x8006;
 	int shellMessage;
@@ -83,6 +87,8 @@ public class RuneLiteWatcher : NativeWindow {
 
 	public static void Run() {
 		instance = new RuneLiteWatcher();
+		POINT lastCursor;
+		GetCursorPos(out lastCursor);
 		var timer = new System.Windows.Forms.Timer { Interval = 1000 };
 		timer.Tick += (s, e) => {
 			lock (output) {
@@ -93,6 +99,13 @@ public class RuneLiteWatcher : NativeWindow {
 				info.cbSize = (uint)Marshal.SizeOf(info);
 				GetLastInputInfo(ref info);
 				Console.Out.WriteLine("input\t" + GetForegroundWindow().ToInt64() + "\t" + (uint)(Environment.TickCount - (int)info.dwTime));
+				// Windows sends mouse moves to the window under the cursor even when it isn't in front, and the game
+				// counts them as activity
+				POINT cursor;
+				if (GetCursorPos(out cursor) && (cursor.X != lastCursor.X || cursor.Y != lastCursor.Y)) {
+					Console.Out.WriteLine("mouse\t" + GetAncestor(WindowFromPoint(cursor), 2).ToInt64());
+				}
+				lastCursor = cursor;
 				Console.Out.WriteLine("end");
 				Console.Out.Flush();
 			}

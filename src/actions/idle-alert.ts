@@ -19,7 +19,11 @@ type Settings = {
 	flash?: boolean;
 	speed?: "slow" | "normal" | "fast";
 	focusOnPress?: boolean;
+	/** Minutes an alert flashes before the key settles to its unlit look; "0" flashes until you're back. */
+	stopAfter?: string;
 };
+
+const DEFAULT_STOP_AFTER_MINUTES = 5;
 
 // Flash half-period in ticks; the logout warning always flashes at the fastest rate
 export const HALF_PERIOD: Record<string, number> = { slow: 4, normal: 2, fast: 1 };
@@ -83,7 +87,11 @@ export class IdleAlert extends SingletonAction<Settings> implements Ticking {
 			}
 			const settings = this.settings.get(a.id) ?? {};
 			const { idle, account } = pickIdle(snap, settings.account);
-			const dismissed = idle.since === this.dismissedSince.get(a.id);
+			// A press stops this alert flashing, and so does it running long enough that you've clearly walked away;
+			// a new alert (the logout warning, say) flashes again
+			const stopAfter = Number(settings.stopAfter ?? DEFAULT_STOP_AFTER_MINUTES) * 60_000;
+			const dismissed =
+				idle.since === this.dismissedSince.get(a.id) || (stopAfter > 0 && isFlashing(idle.state) && Date.now() - idle.since >= stopAfter);
 
 			const speed = idle.state === "logout" ? "fast" : settings.speed ?? "normal";
 			const half = HALF_PERIOD[speed] ?? HALF_PERIOD.normal;

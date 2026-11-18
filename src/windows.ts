@@ -14,8 +14,11 @@ const HELPER = fileURLToPath(new URL("osrs-helper-windows.exe", import.meta.url)
 export type RuneLiteWindow = { hwnd: number; title: string; account?: string };
 
 type Listener = {
-	/** `foreground` is the window in front; `inputAt` is when the user last pressed a key or moved the mouse, epoch millis. */
-	onWindows(windows: RuneLiteWindow[], foreground: number, inputAt: number): void;
+	/**
+	 * `foreground` is the window in front; `inputAt` is when the user last pressed a key or moved the mouse, epoch millis;
+	 * `hovered` is the window the mouse just moved over (it needn't be in front), or 0 if the mouse didn't move.
+	 */
+	onWindows(windows: RuneLiteWindow[], foreground: number, inputAt: number, hovered: number): void;
 	onFlash(window: RuneLiteWindow): void;
 };
 
@@ -47,12 +50,14 @@ export function watchWindows(l: Listener): void {
 	let batch: RuneLiteWindow[] = [];
 	let foreground = 0;
 	let inputAt = 0;
+	let hovered = 0;
 	readline.createInterface({ input: child.stdout }).on("line", (line) => {
 		const [type, hwnd, title = ""] = line.split("\t");
 		const window = { hwnd: Number(hwnd), title, account: accountOf(title) };
 		switch (type) {
 			case "windows":
 				batch = [];
+				hovered = 0;
 				break;
 			case "window":
 				batch.push(window);
@@ -61,8 +66,11 @@ export function watchWindows(l: Listener): void {
 				foreground = Number(hwnd);
 				inputAt = Date.now() - Number(title);
 				break;
+			case "mouse":
+				hovered = Number(hwnd);
+				break;
 			case "end":
-				listener?.onWindows(batch, foreground, inputAt);
+				listener?.onWindows(batch, foreground, inputAt, hovered);
 				break;
 			case "flash":
 				listener?.onFlash(window);

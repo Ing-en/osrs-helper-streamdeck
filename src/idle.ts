@@ -42,7 +42,7 @@ export function startIdleWatch(): void {
 	started = true;
 
 	watchWindows({
-		onWindows(windows, foreground, inputAt) {
+		onWindows(windows, foreground, inputAt, hovered) {
 			const seen = new Set<string>();
 			for (const w of windows) {
 				const account = accountFor(w);
@@ -68,11 +68,18 @@ export function startIdleWatch(): void {
 					t.idle = undefined;
 				}
 			}
-			// Pressing a key or moving the mouse in the client is the player coming back
-			const front = windowAccounts.get(foreground);
-			const t = front ? accounts.get(front.toLowerCase()) : undefined;
-			if (t?.idle && t.idle.state !== "kicked" && inputAt > t.idle.since + INPUT_GRACE_MILLIS) {
-				t.idle = undefined;
+			// Pressing a key or moving the mouse in the client is the player coming back, and so is moving the mouse over
+			// it while another window is in front: the game counts that as activity too
+			const comeBack = (hwnd: number, at: number) => {
+				const account = windowAccounts.get(hwnd);
+				const t = account ? accounts.get(account.toLowerCase()) : undefined;
+				if (t?.idle && t.idle.state !== "kicked" && at > t.idle.since + INPUT_GRACE_MILLIS) {
+					t.idle = undefined;
+				}
+			};
+			comeBack(foreground, inputAt);
+			if (hovered) {
+				comeBack(hovered, Date.now());
 			}
 
 			for (const hwnd of windowAccounts.keys()) {

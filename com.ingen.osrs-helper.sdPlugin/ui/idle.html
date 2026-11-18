@@ -20,12 +20,22 @@
 				<option value="fast">Fast</option>
 			</sdpi-select>
 		</sdpi-item>
+		<sdpi-item label="Stop flashing">
+			<sdpi-select setting="stopAfter" default="5">
+				<option value="1">After 1 minute</option>
+				<option value="5">After 5 minutes</option>
+				<option value="10">After 10 minutes</option>
+				<option value="30">After 30 minutes</option>
+				<option value="0">Never</option>
+			</sdpi-select>
+		</sdpi-item>
 		<sdpi-item label="On press">
 			<sdpi-checkbox setting="focusOnPress" default="true" label="Bring RuneLite to the front"></sdpi-checkbox>
 		</sdpi-item>
 		<p style="color: #969696; font-size: 9pt; margin: 8px 16px">
 			In RuneLite, turn on Idle Notifier and set its notifications' <b>Request focus</b> to <b>Taskbar</b>: the key flashes
-			when RuneLite does. Pressing a key or moving the mouse in RuneLite clears it, and so does pressing this key.
+			when RuneLite does. Pressing a key or moving the mouse in RuneLite clears it. Pressing this key, or the alert lasting
+			longer than <b>Stop flashing</b>, stops the flashing but keeps the alert showing.
 		</p>
 		<p style="font-size: 9pt; margin: 8px 16px">
 			<a href="https://github.com/Ing-en/osrs-helper-streamdeck#setup-in-runelite" target="_blank">Setup guide</a> ·
